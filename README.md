@@ -45,11 +45,11 @@
 ### Yêu cầu:
 - Đã cài đặt **Python 3.10+**
 
-### Các bước khởi chạy:
+### Các bước khởi chạy cục bộ (Local):
 
 1. **Cài đặt thư viện phụ thuộc:**
 ```bash
-pip install flask
+pip install -r requirements.txt
 ```
 
 2. **Chạy máy chủ web:**
@@ -60,6 +60,18 @@ python app.py
 
 3. **Truy cập ứng dụng:**
 Mở trình duyệt và truy cập: **`http://localhost:5000`**
+
+---
+
+## ☁️ Hướng Dẫn Deploy Lên Render (Web Service)
+
+1. Tạo mới **Web Service** trên [Render Dashboard](https://dashboard.render.com).
+2. Kết nối với repository GitHub: `https://github.com/tbn11906-ai/CoffeeShop`.
+3. Cấu hình các thông số:
+   - **Environment:** `Python 3`
+   - **Build Command:** `pip install -r requirements.txt`
+   - **Start Command:** `gunicorn app:app`
+4. Bấm **Deploy Web Service**.
 
 ---
 
