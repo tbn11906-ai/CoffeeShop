@@ -1,0 +1,1351 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Highlands Coffee - E-Menu & Đặt Đồ Uống Trực Tuyến</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            hl: {
+              red: '#B22830',
+              'red-dark': '#8B1D23',
+              'red-light': '#D63D46',
+              brown: '#53382C',
+              'brown-dark': '#38251D',
+              cream: '#FAF6F0',
+              'cream-dark': '#F2EBE3',
+              gold: '#D4AF37',
+              'gold-dark': '#B8860B',
+              'gold-light': '#FDF6E2'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Montserrat', 'sans-serif'],
+            display: ['Montserrat', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+  
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='48' fill='%23B22830'/%3E%3Ccircle cx='50' cy='50' r='42' fill='none' stroke='%23D4AF37' stroke-width='2'/%3E%3Cpath d='M35 40h30v15c0 8-7 15-15 15s-15-7-15-15v-15zm30 5h6a6 6 0 0 1 0 12h-6v-12z' fill='none' stroke='%23FAF6F0' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M42 32c0-3 3-5 3-8m8 8c0-3 3-5 3-8' stroke='%23D4AF37' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E">
+</head>
+<body class="bg-hl-cream text-[#2D2422] min-h-screen flex flex-col antialiased selection:bg-hl-red selection:text-white">
+
+  <!-- TOP PROMO BANNER -->
+  <div class="bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown text-white text-xs md:text-sm py-2 px-4 shadow-sm z-40 relative">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
+      <div class="flex items-center gap-2 overflow-hidden text-ellipsis whitespace-nowrap">
+        <span class="bg-hl-gold text-hl-brown-dark font-bold text-[10px] md:text-xs px-2 py-0.5 rounded-full uppercase tracking-wider flex items-center gap-1">
+          <i data-lucide="sparkles" class="w-3 h-3"></i> Khuyến mãi
+        </span>
+        <span class="font-medium text-hl-gold-light">
+          FREESHIP đơn từ 150.000đ | Nhập <span class="bg-black/20 px-1.5 py-0.5 rounded font-mono font-bold text-white border border-white/20">HIGHLANDS20</span> giảm 20k!
+        </span>
+      </div>
+      <div class="flex items-center gap-4 text-xs font-medium text-amber-100">
+        <button onclick="app.openOrderHistory()" class="hover:text-white flex items-center gap-1 transition-colors">
+          <i data-lucide="receipt" class="w-3.5 h-3.5"></i> Lịch sử đơn hàng
+        </button>
+        <span class="text-white/40">|</span>
+        <a href="tel:19001755" class="hover:text-white flex items-center gap-1 transition-colors">
+          <i data-lucide="phone-call" class="w-3.5 h-3.5 text-hl-gold"></i> Hotline: 1900 1755
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- STICKY HEADER -->
+  <header class="sticky top-0 z-30 glass-header shadow-sm transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20 gap-4">
+        
+        <!-- BRAND LOGO -->
+        <a href="#" onclick="app.filterByCategory(0); return false;" class="flex items-center gap-3 group shrink-0">
+          <div class="w-12 h-12 rounded-full bg-hl-red flex items-center justify-center border-2 border-hl-gold shadow-md group-hover:scale-105 transition-transform">
+            <svg class="w-7 h-7 text-hl-cream" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M30 42h40v18c0 11-9 20-20 20s-20-9-20-20v-18z" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M70 48h8a8 8 0 0 1 0 16h-8v-16z" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M40 32c0-4 4-7 4-11m12 11c0-4 4-7 4-11m12 11c0-4 4-7 4-11" stroke="#D4AF37" stroke-width="4" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="hidden sm:block">
+            <div class="flex items-center gap-1">
+              <span class="font-display font-black text-xl tracking-tight text-hl-red uppercase">HIGHLANDS</span>
+              <span class="font-display font-light text-xl tracking-wider text-hl-brown uppercase">COFFEE</span>
+            </div>
+            <div class="text-[10px] font-semibold tracking-widest text-hl-gold-dark uppercase -mt-1">
+              Niềm Đam Mê Cà Phê Việt
+            </div>
+          </div>
+        </a>
+
+        <!-- QUICK SEARCH BAR -->
+        <div class="flex-1 max-w-xl mx-2 md:mx-6">
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-stone-400">
+              <i data-lucide="search" class="w-4 h-4"></i>
+            </div>
+            <input 
+              type="text" 
+              id="searchInput"
+              placeholder="Tìm đồ uống yêu thích (Phin sữa đá, Trà sen vàng, Freeze...)"
+              class="w-full pl-10 pr-10 py-2.5 bg-stone-100 hover:bg-white focus:bg-white text-sm text-stone-800 placeholder-stone-400 rounded-full border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none transition-all duration-200"
+              oninput="app.handleSearch(this.value)"
+            >
+            <button 
+              id="clearSearchBtn" 
+              onclick="app.clearSearch()" 
+              class="absolute inset-y-0 right-0 pr-3.5 flex items-center text-stone-400 hover:text-hl-red hidden"
+              title="Xóa tìm kiếm"
+            >
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- RIGHT ACTIONS: AUTH, ORDER HISTORY & CART -->
+        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
+          
+          <!-- Auth User Action Container -->
+          <div id="authHeaderContainer" class="flex items-center">
+            <button 
+              onclick="app.openAuthModal('login')" 
+              class="flex items-center gap-1.5 px-3 py-2 bg-stone-100 hover:bg-stone-200 text-stone-800 rounded-full font-bold text-xs transition-all border border-stone-200 shadow-sm"
+            >
+              <i data-lucide="user" class="w-4 h-4 text-hl-red"></i>
+              <span>Đăng nhập</span>
+            </button>
+          </div>
+
+          <!-- Order History Button (Desktop) -->
+          <button 
+            onclick="app.openOrderHistory()" 
+            class="hidden md:flex items-center gap-1.5 px-3 py-2 text-stone-600 hover:text-hl-red hover:bg-stone-100 rounded-xl transition-all font-medium text-xs lg:text-sm"
+          >
+            <i data-lucide="clock" class="w-4 h-4"></i>
+            <span>Đơn đã đặt</span>
+          </button>
+
+          <!-- Cart Trigger Button -->
+          <button 
+            id="cartTriggerBtn"
+            onclick="app.toggleCart(true)"
+            class="relative flex items-center gap-2.5 bg-hl-red hover:bg-hl-red-dark text-white px-4 py-2.5 rounded-full shadow-md hover:shadow-lg transition-all duration-200 active:scale-95 group"
+          >
+            <div class="relative">
+              <i data-lucide="shopping-bag" class="w-5 h-5 text-hl-gold group-hover:scale-110 transition-transform"></i>
+              <span 
+                id="cartBadge" 
+                class="absolute -top-2 -right-2 bg-hl-gold text-hl-brown-dark font-extrabold text-[11px] w-5 h-5 rounded-full flex items-center justify-center border-2 border-white shadow-sm"
+              >0</span>
+            </div>
+            <div class="hidden sm:flex flex-col text-left leading-none">
+              <span class="text-[10px] text-white/80 font-medium">Giỏ hàng</span>
+              <span id="cartHeaderTotal" class="text-xs font-bold text-white font-mono mt-0.5">0đ</span>
+            </div>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO SECTION -->
+  <section class="relative bg-gradient-to-br from-hl-brown-dark via-hl-red to-hl-red-dark text-white overflow-hidden py-10 md:py-16">
+    <!-- Decorative Coffee Bean / Background Pattern -->
+    <div class="absolute inset-0 opacity-10 bg-[radial-gradient(#D4AF37_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none"></div>
+    <div class="absolute -right-20 -bottom-20 w-96 h-96 rounded-full bg-hl-gold/10 blur-3xl pointer-events-none"></div>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+        
+        <!-- Left Hero Text -->
+        <div class="lg:col-span-7 space-y-4 md:space-y-6 text-center lg:text-left">
+          <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/15 text-xs text-hl-gold-light font-semibold">
+            <span class="w-2 h-2 rounded-full bg-hl-gold animate-pulse"></span>
+            Đậm Vị Truyền Thống • Chuẩn Gu Hiện Đại
+          </div>
+          
+          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black font-display tracking-tight leading-tight">
+            Thưởng Thức Hương Vị <br class="hidden sm:inline">
+            <span class="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-hl-gold to-yellow-100">
+              Highlands Coffee Đích Thực
+            </span>
+          </h1>
+
+          <p class="text-sm md:text-base text-stone-200 max-w-xl mx-auto lg:mx-0 font-normal leading-relaxed">
+            Khám phá trọn vẹn bộ sưu tập Cà phê Phin thế hệ mới PhinDi, Freeze đá xay sảng khoái và Trà Sen Vàng huyền thoại. Đặt món tiện lợi, giao tận nơi trong 30 phút!
+          </p>
+
+          <!-- Quick Action Buttons -->
+          <div class="flex flex-wrap items-center justify-center lg:justify-start gap-3 pt-2">
+            <a 
+              href="#menuSection" 
+              class="bg-hl-gold hover:bg-yellow-400 text-hl-brown-dark font-bold px-6 py-3 rounded-full text-sm shadow-lg hover:shadow-xl transition-all duration-200 flex items-center gap-2 active:scale-95"
+            >
+              <i data-lucide="coffee" class="w-4 h-4"></i> Khám Phá Menu
+            </a>
+            <button 
+              onclick="app.filterByTag('Best Seller')" 
+              class="bg-white/15 hover:bg-white/25 text-white font-medium px-5 py-3 rounded-full text-sm backdrop-blur-sm border border-white/20 transition-all duration-200 flex items-center gap-2"
+            >
+              <i data-lucide="flame" class="w-4 h-4 text-orange-300"></i> Món Bán Chạy Nhất
+            </button>
+          </div>
+
+          <!-- Feature badges -->
+          <div class="grid grid-cols-3 gap-3 pt-4 border-t border-white/10 text-stone-300 text-xs">
+            <div class="flex items-center gap-2">
+              <i data-lucide="award" class="w-4 h-4 text-hl-gold shrink-0"></i>
+              <span>100% Cà phê Việt chất lượng</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="truck" class="w-4 h-4 text-hl-gold shrink-0"></i>
+              <span>Giao nhanh 25-35 phút</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-hl-gold shrink-0"></i>
+              <span>Tùy biến đá / đường / size</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Hero Showcase Carousel -->
+        <div class="lg:col-span-5 flex justify-center">
+          <div class="relative w-full max-w-sm sm:max-w-md">
+            
+            <!-- Showcase Card -->
+            <div id="heroFeaturedCard" class="bg-gradient-to-b from-white/10 to-white/5 backdrop-blur-md border border-white/20 rounded-3xl p-5 shadow-2xl relative overflow-hidden transition-all duration-500">
+              <div class="absolute top-4 right-4 bg-hl-gold text-hl-brown-dark text-[11px] font-black uppercase px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                <i data-lucide="star" class="w-3 h-3 fill-current"></i> Món Đề Xuất
+              </div>
+              
+              <div class="h-56 sm:h-64 flex items-center justify-center p-2">
+                <img 
+                  id="heroImage" 
+                  src="images/products/HLC_New_logo_5.1_Products__TRA_SEN_VANG_CU_NANG.jpg" 
+                  alt="Highlands Hero Showcase"
+                  class="max-h-full object-contain drop-shadow-2xl transition-all duration-500 hover:scale-105 cursor-pointer"
+                  onclick="app.openCustomizeModalById(30)"
+                >
+              </div>
+
+              <div class="mt-3 text-center sm:text-left space-y-1">
+                <div class="text-xs font-semibold text-hl-gold uppercase tracking-wider" id="heroCategory">Trà Highlands</div>
+                <h3 class="text-xl font-bold font-display text-white" id="heroTitle">TRÀ SEN VÀNG (CỦ NĂNG)</h3>
+                <p class="text-xs text-stone-300 line-clamp-2" id="heroDesc">
+                  Thức uống chinh phục những thực khách khó tính! Sự kết hợp độc đáo giữa trà Ô long, hạt sen thơm bùi và củ năng giòn tan.
+                </p>
+                <div class="pt-3 flex items-center justify-between">
+                  <div class="text-xl font-black text-hl-gold font-mono" id="heroPrice">45.000đ</div>
+                  <button 
+                    id="heroOrderBtn"
+                    onclick="app.openCustomizeModalById(30)"
+                    class="bg-hl-red hover:bg-hl-red-dark text-white px-4 py-2 rounded-xl text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1.5"
+                  >
+                    <span>Đặt Món Này</span>
+                    <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Slide indicator dots -->
+            <div class="flex justify-center items-center gap-2 mt-4">
+              <button onclick="app.setHeroSlide(0)" class="hero-dot w-6 h-2 rounded-full bg-hl-gold transition-all"></button>
+              <button onclick="app.setHeroSlide(1)" class="hero-dot w-2 h-2 rounded-full bg-white/40 hover:bg-white transition-all"></button>
+              <button onclick="app.setHeroSlide(2)" class="hero-dot w-2 h-2 rounded-full bg-white/40 hover:bg-white transition-all"></button>
+              <button onclick="app.setHeroSlide(3)" class="hero-dot w-2 h-2 rounded-full bg-white/40 hover:bg-white transition-all"></button>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- MAIN MENU SECTION -->
+  <main id="menuSection" class="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12 w-full">
+    
+    <!-- CATEGORY NAVIGATION TABS -->
+    <div class="sticky top-20 z-20 bg-hl-cream/95 backdrop-blur-md pt-2 pb-4 -mx-4 px-4 sm:mx-0 sm:px-0">
+      <div class="flex items-center justify-between gap-3 mb-2">
+        <h2 class="text-xl md:text-2xl font-black font-display text-hl-brown-dark flex items-center gap-2">
+          <span>Khám Phá Menu</span>
+          <span id="productTotalCountBadge" class="text-xs bg-stone-200 text-stone-700 px-2 py-0.5 rounded-full font-sans font-bold">46 món</span>
+        </h2>
+        
+        <!-- Sort Dropdown -->
+        <div class="flex items-center gap-2 text-xs md:text-sm">
+          <label for="sortSelect" class="text-stone-500 font-medium hidden sm:inline">Sắp xếp:</label>
+          <div class="relative">
+            <select 
+              id="sortSelect" 
+              onchange="app.handleSort(this.value)"
+              class="appearance-none bg-white border border-stone-200 hover:border-hl-red text-stone-700 font-medium py-1.5 pl-3 pr-8 rounded-xl shadow-sm text-xs md:text-sm outline-none focus:ring-2 focus:ring-hl-red/20 cursor-pointer"
+            >
+              <option value="default">Mặc định (Nổi bật)</option>
+              <option value="price-asc">Giá: Thấp đến Cao</option>
+              <option value="price-desc">Giá: Cao đến Thấp</option>
+              <option value="name-asc">Tên: A - Z</option>
+            </select>
+            <div class="absolute inset-y-0 right-0 flex items-center pr-2.5 pointer-events-none text-stone-400">
+              <i data-lucide="chevron-down" class="w-3.5 h-3.5"></i>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Horizontal Scrollable Category Pills -->
+      <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-2" id="categoryTabsContainer">
+        <!-- Will be dynamically injected by app.renderCategories() -->
+      </div>
+    </div>
+
+    <!-- CATEGORY DESCRIPTION BANNER (DYNAMIC) -->
+    <div id="categoryDescBanner" class="mb-6 p-4 rounded-2xl bg-white border border-stone-200 shadow-sm transition-all duration-300 hidden">
+      <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-xl bg-hl-red/10 text-hl-red flex items-center justify-center shrink-0 mt-0.5">
+          <i data-lucide="info" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h4 id="bannerCatTitle" class="font-bold text-hl-brown-dark text-sm md:text-base">Tên danh mục</h4>
+          <p id="bannerCatDesc" class="text-xs md:text-sm text-stone-600 mt-1 leading-relaxed">Mô tả danh mục</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- FILTER CHIPS & ACTIVE FILTERS -->
+    <div id="activeFiltersContainer" class="flex flex-wrap items-center gap-2 mb-6 hidden">
+      <span class="text-xs font-semibold text-stone-500">Đang lọc theo:</span>
+      <div id="filterPills" class="flex flex-wrap items-center gap-2"></div>
+      <button 
+        onclick="app.resetAllFilters()" 
+        class="text-xs text-hl-red hover:underline font-semibold ml-2 flex items-center gap-1"
+      >
+        <i data-lucide="rotate-ccw" class="w-3 h-3"></i> Đặt lại tất cả
+      </button>
+    </div>
+
+    <!-- PRODUCT GRID -->
+    <div id="productGrid" class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+      <!-- Injected by app.renderProducts() -->
+    </div>
+
+    <!-- EMPTY SEARCH / FILTER STATE -->
+    <div id="emptyState" class="hidden text-center py-16 px-4">
+      <div class="w-20 h-20 mx-auto rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-4">
+        <i data-lucide="coffee" class="w-10 h-10 stroke-[1.5]"></i>
+      </div>
+      <h3 class="text-lg font-bold text-stone-700 mb-1">Không tìm thấy món phù hợp</h3>
+      <p class="text-xs sm:text-sm text-stone-500 max-w-md mx-auto mb-5">
+        Rất tiếc chúng tôi không tìm thấy thức uống nào với từ khóa bạn vừa nhập. Hãy thử tìm món khác hoặc xóa bộ lọc!
+      </p>
+      <button 
+        onclick="app.resetAllFilters()" 
+        class="inline-flex items-center gap-2 bg-hl-red hover:bg-hl-red-dark text-white text-xs sm:text-sm font-semibold px-5 py-2.5 rounded-full shadow transition-all"
+      >
+        <i data-lucide="refresh-cw" class="w-4 h-4"></i> Xem tất cả món
+      </button>
+    </div>
+
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="bg-hl-brown-dark text-stone-300 pt-12 pb-8 border-t border-hl-brown">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-8 mb-10">
+        
+        <!-- Brand Col -->
+        <div class="space-y-3">
+          <div class="flex items-center gap-2">
+            <div class="w-9 h-9 rounded-full bg-hl-red flex items-center justify-center border border-hl-gold">
+              <i data-lucide="coffee" class="w-5 h-5 text-hl-gold"></i>
+            </div>
+            <span class="font-display font-black text-lg text-white">HIGHLANDS COFFEE</span>
+          </div>
+          <p class="text-xs text-stone-400 leading-relaxed">
+            Sinh ra từ niềm đam mê hạt cà phê Việt Nam năm 1999, Highlands Coffee không ngừng gìn giữ bản sắc và khát vọng vươn tầm thế giới.
+          </p>
+          <div class="text-xs text-hl-gold font-medium">
+            Hotline Đặt Hàng: 1900 1755
+          </div>
+        </div>
+
+        <!-- Col 2: Dòng Đồ Uống -->
+        <div class="space-y-2">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider font-display">Dòng Sản Phẩm</h4>
+          <ul class="text-xs space-y-1.5 text-stone-400">
+            <li><a href="#" onclick="app.filterByCategory(1); return false;" class="hover:text-hl-gold transition-colors">Cà phê Phin & Truyền Thống</a></li>
+            <li><a href="#" onclick="app.filterByTag('PhinDi'); return false;" class="hover:text-hl-gold transition-colors">PhinDi Cà Phê Thế Hệ Mới</a></li>
+            <li><a href="#" onclick="app.filterByCategory(2); return false;" class="hover:text-hl-gold transition-colors">Freeze Đá Xay Sảng Khoái</a></li>
+            <li><a href="#" onclick="app.filterByCategory(3); return false;" class="hover:text-hl-gold transition-colors">Trà Sen Vàng & Trà Hoa Quả</a></li>
+            <li><a href="#" onclick="app.filterByCategory(4); return false;" class="hover:text-hl-gold transition-colors">Bánh Ngọt Thơm Béo</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 3: Chính sách -->
+        <div class="space-y-2">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider font-display">Thông Tin & Dịch Vụ</h4>
+          <ul class="text-xs space-y-1.5 text-stone-400">
+            <li><a href="#" class="hover:text-hl-gold transition-colors">Chính sách giao hàng 30 phút</a></li>
+            <li><a href="#" class="hover:text-hl-gold transition-colors">Điều khoản bảo mật thanh toán</a></li>
+            <li><a href="#" class="hover:text-hl-gold transition-colors">Tìm kiếm chi nhánh gần bạn</a></li>
+            <li><a href="#" class="hover:text-hl-gold transition-colors">Thẻ thành viên & Tích điểm</a></li>
+          </ul>
+        </div>
+
+        <!-- Col 4: Cam kết chất lượng -->
+        <div class="space-y-3">
+          <h4 class="text-sm font-bold text-white uppercase tracking-wider font-display">Cam Kết Chất Lượng</h4>
+          <div class="bg-white/5 p-3 rounded-2xl border border-white/10 text-xs text-stone-400 space-y-1.5">
+            <div class="flex items-center gap-2 text-white font-medium">
+              <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+              <span>Chuẩn nguyên liệu Việt</span>
+            </div>
+            <p class="text-[11px]">Hạt cà phê Robusta & Arabica chọn lọc kỹ lưỡng từ vùng đất Cao Nguyên màu mỡ.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="pt-6 border-t border-white/10 flex flex-col items-center justify-between text-xs text-stone-400 gap-3 text-center sm:text-left">
+        <div class="w-full flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p>© 2026 Highlands Coffee Ordering Web App. Lấy cảm hứng từ thương hiệu Highlands Coffee Việt Nam.</p>
+          <p class="flex items-center gap-1 text-stone-500">
+            Thiết kế sang trọng • Tải siêu tốc • Chuẩn Responsive
+          </p>
+        </div>
+        <p class="text-[11px] text-amber-200/80 bg-white/5 px-3.5 py-1.5 rounded-full border border-white/10 italic flex items-center gap-1.5 mx-auto">
+          <i data-lucide="info" class="w-3.5 h-3.5 text-hl-gold shrink-0"></i>
+          <span>Ảnh sản phẩm thuộc bản quyền chủ sở hữu – trang dùng cho mục đích học tập, không phát hành.</span>
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: DRINK CUSTOMIZATION (TÙY CHỌN ĐỒ UỐNG CHUẨN QUÁN) -->
+  <!-- ======================================================== -->
+  <div id="customizeModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden modal-enter border border-stone-200">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between p-4 sm:p-5 border-b border-stone-100 bg-hl-cream/50">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-hl-red"></span>
+          <h3 class="text-base sm:text-lg font-bold font-display text-hl-brown-dark" id="modalDrinkName">Tên Món</h3>
+        </div>
+        <button 
+          onclick="app.closeCustomizeModal()" 
+          class="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 flex items-center justify-center transition-colors"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-4 sm:p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+        
+        <!-- Product Quick Preview -->
+        <div class="flex gap-4 items-center bg-stone-50 p-3 rounded-2xl border border-stone-200/80">
+          <div class="w-24 h-24 rounded-xl overflow-hidden bg-white shrink-0 border border-stone-200 flex items-center justify-center p-1">
+            <img id="modalDrinkImg" src="" alt="" class="max-h-full max-w-full object-contain">
+          </div>
+          <div class="space-y-1 min-w-0">
+            <span id="modalDrinkCategory" class="inline-block text-[11px] font-bold text-hl-gold-dark bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">
+              Danh mục
+            </span>
+            <h4 id="modalDrinkTitlePreview" class="font-bold text-stone-800 text-base truncate">Tên món</h4>
+            <p id="modalDrinkDesc" class="text-xs text-stone-500 line-clamp-2">Mô tả chi tiết đồ uống</p>
+            <div class="text-base font-extrabold text-hl-red font-mono pt-1" id="modalDrinkBasePrice">0đ</div>
+          </div>
+        </div>
+
+        <!-- 1. CHỌN SIZE (For Drinks) -->
+        <div id="sizeSection" class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-stone-800 flex items-center gap-1.5">
+              <i data-lucide="coffee" class="w-4 h-4 text-hl-red"></i> Chọn Kích Cỡ (Size)
+            </span>
+            <span class="text-[11px] text-hl-red font-semibold bg-red-50 px-2 py-0.5 rounded">Bắt buộc</span>
+          </div>
+          <div class="grid grid-cols-3 gap-2.5" id="sizeOptionsContainer">
+            <!-- Dynamic size radios -->
+          </div>
+        </div>
+
+        <!-- 2. MỨC ĐƯỜNG (Sweetness) -->
+        <div id="sugarSection" class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-stone-800 flex items-center gap-1.5">
+              <i data-lucide="sparkle" class="w-4 h-4 text-hl-gold"></i> Mức Đường
+            </span>
+            <span class="text-[11px] text-stone-400">Chọn 1</span>
+          </div>
+          <div class="grid grid-cols-5 gap-2" id="sugarOptionsContainer">
+            <!-- Dynamic sugar buttons -->
+          </div>
+        </div>
+
+        <!-- 3. MỨC ĐÁ (Ice level) -->
+        <div id="iceSection" class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-stone-800 flex items-center gap-1.5">
+              <i data-lucide="snowflake" class="w-4 h-4 text-cyan-600"></i> Mức Đá
+            </span>
+            <span class="text-[11px] text-stone-400">Chọn 1</span>
+          </div>
+          <div class="grid grid-cols-5 gap-2" id="iceOptionsContainer">
+            <!-- Dynamic ice buttons -->
+          </div>
+        </div>
+
+        <!-- 4. TOPPING THÊM -->
+        <div id="toppingSection" class="space-y-2.5">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-stone-800 flex items-center gap-1.5">
+              <i data-lucide="plus-circle" class="w-4 h-4 text-emerald-600"></i> Thêm Topping Yêu Thích
+            </span>
+            <span class="text-[11px] text-stone-400">Tùy chọn</span>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2" id="toppingsContainer">
+            <!-- Dynamic toppings checkboxes -->
+          </div>
+        </div>
+
+        <!-- 5. GHI CHÚ RIÊNG CHO PHA CHẾ -->
+        <div class="space-y-2">
+          <label for="modalDrinkNotes" class="font-bold text-stone-800 flex items-center gap-1.5">
+            <i data-lucide="message-square" class="w-4 h-4 text-stone-500"></i> Ghi Chú Riêng Cho Barista
+          </label>
+          <input 
+            type="text" 
+            id="modalDrinkNotes" 
+            placeholder="Ví dụ: Để riêng đá, nhiều bọt sữa, ít ngọt, mang ly riêng..."
+            class="w-full text-xs sm:text-sm px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+          >
+        </div>
+
+      </div>
+
+      <!-- Modal Footer (Quantity + Total + Add Button) -->
+      <div class="p-4 sm:p-5 border-t border-stone-100 bg-stone-50 flex items-center justify-between gap-3">
+        <!-- Quantity Selector -->
+        <div class="flex items-center bg-white border border-stone-200 rounded-2xl p-1 shadow-sm shrink-0">
+          <button 
+            type="button"
+            onclick="app.changeModalQty(-1)" 
+            class="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 font-bold active:scale-95 transition-all"
+          >
+            <i data-lucide="minus" class="w-3.5 h-3.5"></i>
+          </button>
+          <span id="modalQuantity" class="w-10 text-center font-bold font-mono text-sm">1</span>
+          <button 
+            type="button"
+            onclick="app.changeModalQty(1)" 
+            class="w-8 h-8 rounded-xl bg-stone-100 hover:bg-stone-200 flex items-center justify-center text-stone-700 font-bold active:scale-95 transition-all"
+          >
+            <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
+
+        <!-- Add to Cart CTA Button -->
+        <button 
+          id="modalAddBtn"
+          onclick="app.confirmAddToCart()"
+          class="flex-1 bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-5 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-between active:scale-98"
+        >
+          <span class="flex items-center gap-1.5 text-xs sm:text-sm">
+            <i data-lucide="shopping-bag" class="w-4 h-4 text-hl-gold"></i>
+            Thêm Vào Giỏ Hàng
+          </span>
+          <span id="modalTotalPrice" class="font-mono text-sm sm:text-base font-extrabold text-hl-gold-light">0đ</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- SLIDE-OVER DRAWER: SHOPPING CART (GIỎ HÀNG BÊN PHẢI)    -->
+  <!-- ======================================================== -->
+  <div id="cartDrawerBackdrop" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-300">
+    <div class="absolute inset-0" onclick="app.toggleCart(false)"></div>
+    
+    <div 
+      id="cartDrawerContent" 
+      class="absolute inset-y-0 right-0 max-w-full w-full sm:w-[460px] bg-white shadow-2xl flex flex-col transform translate-x-full transition-transform duration-300 ease-out"
+    >
+      
+      <!-- Cart Header -->
+      <div class="p-4 sm:p-5 border-b border-stone-200 flex items-center justify-between bg-hl-cream/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-hl-red text-white flex items-center justify-center">
+            <i data-lucide="shopping-bag" class="w-4 h-4 text-hl-gold"></i>
+          </div>
+          <div>
+            <h3 class="font-bold font-display text-stone-900 text-base">Giỏ Hàng Của Bạn</h3>
+            <p class="text-xs text-stone-500" id="cartDrawerSubCount">0 món trong giỏ</p>
+          </div>
+        </div>
+        <button 
+          onclick="app.toggleCart(false)" 
+          class="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 flex items-center justify-center transition-colors"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Free Shipping Progress Tracker -->
+      <div class="bg-amber-50 border-b border-amber-200/60 px-4 py-2.5 text-xs">
+        <div class="flex items-center justify-between text-stone-700 font-medium mb-1.5">
+          <span id="freeShipText">Mua thêm 150.000đ để được FREESHIP</span>
+          <span id="freeShipPercentText" class="font-bold text-hl-red">0%</span>
+        </div>
+        <div class="w-full bg-amber-200/50 rounded-full h-1.5 overflow-hidden">
+          <div id="freeShipProgressBar" class="bg-gradient-to-r from-hl-red to-hl-gold h-1.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <!-- Cart Item List (Scrollable) -->
+      <div id="cartItemsList" class="flex-1 overflow-y-auto p-4 space-y-3.5 divide-y divide-stone-100">
+        <!-- Rendered by app.renderCart() -->
+      </div>
+
+      <!-- Empty Cart State in Drawer -->
+      <div id="cartEmptyState" class="hidden flex-1 flex flex-col items-center justify-center p-8 text-center">
+        <div class="w-20 h-20 rounded-full bg-stone-100 flex items-center justify-center text-stone-400 mb-4">
+          <i data-lucide="coffee" class="w-10 h-10 stroke-[1.5]"></i>
+        </div>
+        <h4 class="font-bold text-stone-800 text-base mb-1">Giỏ hàng của bạn đang trống</h4>
+        <p class="text-xs text-stone-500 max-w-xs mb-6">
+          Hãy khám phá menu thơm ngon của Highlands Coffee và chọn món đồ uống chuẩn gu nhé!
+        </p>
+        <button 
+          onclick="app.toggleCart(false)" 
+          class="bg-hl-red hover:bg-hl-red-dark text-white text-xs font-bold px-6 py-2.5 rounded-full shadow transition-all"
+        >
+          Chọn Món Ngay
+        </button>
+      </div>
+
+      <!-- Cart Footer / Summary -->
+      <div id="cartFooterSection" class="p-4 sm:p-5 border-t border-stone-200 bg-stone-50 space-y-3">
+        
+        <!-- Voucher input -->
+        <div class="flex gap-2">
+          <div class="relative flex-1">
+            <input 
+              type="text" 
+              id="voucherInput"
+              placeholder="Nhập mã giảm giá (HIGHLANDS20)" 
+              class="w-full uppercase text-xs font-mono font-bold pl-3 pr-3 py-2 bg-white rounded-xl border border-stone-200 focus:border-hl-red outline-none"
+            >
+          </div>
+          <button 
+            type="button" 
+            onclick="app.applyVoucher()" 
+            class="bg-stone-800 hover:bg-black text-white text-xs font-semibold px-4 py-2 rounded-xl transition-all"
+          >
+            Áp Dụng
+          </button>
+        </div>
+        <div id="voucherMessage" class="text-[11px] font-medium hidden"></div>
+
+        <!-- Subtotals -->
+        <div class="space-y-1.5 text-xs text-stone-600 pt-1">
+          <div class="flex justify-between">
+            <span>Tạm tính</span>
+            <span id="cartSubtotal" class="font-mono font-semibold text-stone-800">0đ</span>
+          </div>
+          <div class="flex justify-between" id="discountRow">
+            <span>Giảm giá</span>
+            <span id="cartDiscount" class="font-mono font-semibold text-emerald-600">-0đ</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Phí giao hàng</span>
+            <span id="cartShipping" class="font-mono font-semibold text-stone-800">15.000đ</span>
+          </div>
+          <div class="flex justify-between text-sm sm:text-base font-black text-stone-900 pt-2 border-t border-stone-200">
+            <span>Tổng thanh toán</span>
+            <span id="cartGrandTotal" class="font-mono text-hl-red">0đ</span>
+          </div>
+        </div>
+
+        <!-- Checkout Buttons -->
+        <div class="pt-2 flex gap-2">
+          <button 
+            onclick="app.openCheckoutModal()" 
+            class="flex-1 bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-4 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 active:scale-98 text-xs sm:text-sm"
+          >
+            <span>Tiến Hành Đặt Hàng</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: CHECKOUT & DELIVERY INFO (ĐIỀN THÔNG TIN ĐẶT MÓN) -->
+  <!-- ======================================================== -->
+  <div id="checkoutModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden modal-enter border border-stone-200">
+      
+      <!-- Checkout Header -->
+      <div class="p-4 sm:p-5 border-b border-stone-100 bg-hl-cream/50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-hl-red text-white flex items-center justify-center">
+            <i data-lucide="clipboard-check" class="w-4 h-4 text-hl-gold"></i>
+          </div>
+          <h3 class="text-base sm:text-lg font-bold font-display text-hl-brown-dark">Thông Tin Nhận Hàng</h3>
+        </div>
+        <button 
+          onclick="app.closeCheckoutModal()" 
+          class="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 flex items-center justify-center transition-colors"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Checkout Form Body (Scrollable) -->
+      <form id="checkoutForm" onsubmit="app.submitOrder(event)" class="p-4 sm:p-6 overflow-y-auto space-y-4 flex-1 text-xs sm:text-sm">
+        
+        <!-- Delivery Mode Toggle -->
+        <div class="space-y-1.5">
+          <label class="font-bold text-stone-800">Hình thức nhận món</label>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <input type="radio" name="orderType" id="deliveryModeShip" value="delivery" checked class="hidden peer" onchange="app.handleOrderTypeChange('delivery')">
+              <label for="deliveryModeShip" class="flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-stone-200 peer-checked:border-hl-red peer-checked:bg-red-50 text-stone-700 peer-checked:text-hl-red font-semibold cursor-pointer transition-all">
+                <i data-lucide="truck" class="w-4 h-4"></i> Giao tận nơi
+              </label>
+            </div>
+            <div>
+              <input type="radio" name="orderType" id="deliveryModeTakeaway" value="takeaway" class="hidden peer" onchange="app.handleOrderTypeChange('takeaway')">
+              <label for="deliveryModeTakeaway" class="flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-stone-200 peer-checked:border-hl-red peer-checked:bg-red-50 text-stone-700 peer-checked:text-hl-red font-semibold cursor-pointer transition-all">
+                <i data-lucide="store" class="w-4 h-4"></i> Nhận tại quán
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full Name & Phone -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label for="custName" class="font-bold text-stone-800">Họ và tên khách hàng <span class="text-hl-red">*</span></label>
+            <input 
+              type="text" 
+              id="custName" 
+              required
+              placeholder="Nguyễn Văn A" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+          <div class="space-y-1">
+            <label for="custPhone" class="font-bold text-stone-800">Số điện thoại <span class="text-hl-red">*</span></label>
+            <input 
+              type="tel" 
+              id="custPhone" 
+              required
+              placeholder="0912345678" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+        </div>
+
+        <!-- Address or Branch -->
+        <div id="addressSection" class="space-y-1">
+          <label for="custAddress" class="font-bold text-stone-800">Địa chỉ giao hàng chi tiết <span class="text-hl-red">*</span></label>
+          <input 
+            type="text" 
+            id="custAddress" 
+            placeholder="Số nhà, tên đường, phường/xã, quận/huyện..." 
+            class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+          >
+        </div>
+
+        <!-- Branch Select (Hidden by default, shown when takeaway is selected) -->
+        <div id="branchSection" class="space-y-1 hidden">
+          <label for="custBranch" class="font-bold text-stone-800">Chọn chi nhánh Highlands Coffee gần bạn <span class="text-hl-red">*</span></label>
+          <select 
+            id="custBranch" 
+            class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none bg-white"
+          >
+            <option value="Highlands Coffee - Vincom Center (72 Lê Thánh Tôn, Q.1, TP.HCM)">Highlands Coffee - Vincom Center (72 Lê Thánh Tôn, Q.1, TP.HCM)</option>
+            <option value="Highlands Coffee - Landmark 81 (Nguyễn Hữu Cảnh, Bình Thạnh, TP.HCM)">Highlands Coffee - Landmark 81 (Nguyễn Hữu Cảnh, Bình Thạnh, TP.HCM)</option>
+            <option value="Highlands Coffee - Nhà Hát Lớn (1 Tràng Tiền, Hoàn Kiếm, Hà Nội)">Highlands Coffee - Nhà Hát Lớn (1 Tràng Tiền, Hoàn Kiếm, Hà Nội)</option>
+            <option value="Highlands Coffee - Hàm Cá Mập (Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội)">Highlands Coffee - Hàm Cá Mập (Đinh Tiên Hoàng, Hoàn Kiếm, Hà Nội)</option>
+            <option value="Highlands Coffee - Cầu Rồng (Bạch Đằng, Hải Châu, Đà Nẵng)">Highlands Coffee - Cầu Rồng (Bạch Đằng, Hải Châu, Đà Nẵng)</option>
+          </select>
+        </div>
+
+        <!-- Payment Method -->
+        <div class="space-y-2 pt-2 border-t border-stone-100">
+          <label class="font-bold text-stone-800">Phương thức thanh toán</label>
+          <div class="space-y-2">
+            
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:border-hl-red cursor-pointer bg-white transition-all">
+              <input type="radio" name="paymentMethod" value="COD" checked class="text-hl-red focus:ring-hl-red">
+              <div class="flex items-center justify-between flex-1">
+                <span class="font-semibold text-stone-800 flex items-center gap-2">
+                  <i data-lucide="banknote" class="w-4 h-4 text-emerald-600"></i> Tiền mặt khi nhận hàng (COD)
+                </span>
+                <span class="text-[11px] text-stone-400">Phổ biến</span>
+              </div>
+            </label>
+
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:border-hl-red cursor-pointer bg-white transition-all">
+              <input type="radio" name="paymentMethod" value="VIETQR" class="text-hl-red focus:ring-hl-red">
+              <div class="flex items-center justify-between flex-1">
+                <span class="font-semibold text-stone-800 flex items-center gap-2">
+                  <i data-lucide="qr-code" class="w-4 h-4 text-blue-600"></i> Quét mã VietQR (Tất cả ngân hàng)
+                </span>
+                <span class="text-[11px] bg-blue-50 text-blue-600 font-bold px-2 py-0.5 rounded">Khuyên dùng</span>
+              </div>
+            </label>
+
+            <label class="flex items-center gap-3 p-3 rounded-xl border border-stone-200 hover:border-hl-red cursor-pointer bg-white transition-all">
+              <input type="radio" name="paymentMethod" value="MOMO" class="text-hl-red focus:ring-hl-red">
+              <div class="flex items-center justify-between flex-1">
+                <span class="font-semibold text-stone-800 flex items-center gap-2">
+                  <i data-lucide="wallet" class="w-4 h-4 text-pink-600"></i> Ví điện tử MoMo
+                </span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Order Note -->
+        <div class="space-y-1">
+          <label for="checkoutNote" class="font-bold text-stone-800">Ghi chú giao hàng (nếu có)</label>
+          <input 
+            type="text" 
+            id="checkoutNote" 
+            placeholder="Ví dụ: Gọi trước khi đến, gửi bảo vệ tòa nhà..." 
+            class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+          >
+        </div>
+
+        <!-- Order Summary Box -->
+        <div class="bg-stone-50 p-3.5 rounded-2xl border border-stone-200 text-xs space-y-1">
+          <div class="flex justify-between text-stone-600">
+            <span>Số lượng món:</span>
+            <span id="checkoutItemCount" class="font-bold text-stone-800">0</span>
+          </div>
+          <div class="flex justify-between text-stone-600">
+            <span>Tổng thanh toán:</span>
+            <span id="checkoutTotalAmount" class="font-extrabold text-hl-red font-mono text-sm">0đ</span>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <button 
+          type="submit" 
+          class="w-full bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3.5 px-4 rounded-2xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 active:scale-98 text-sm"
+        >
+          <i data-lucide="check" class="w-4 h-4 text-hl-gold"></i>
+          <span>Xác Nhận Đặt Hàng Ngay</span>
+        </button>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ORDER SUCCESS RECEIPT (HÓA ĐƠN ĐẶT HÀNG THÀNH CÔNG)-->
+  <!-- ======================================================== -->
+  <div id="orderReceiptModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[92vh] flex flex-col overflow-hidden modal-enter border border-stone-200">
+      
+      <!-- Receipt Header -->
+      <div class="p-5 bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown text-white text-center relative">
+        <button 
+          onclick="app.closeReceiptModal()" 
+          class="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center no-print"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <div class="w-12 h-12 rounded-full bg-white/10 mx-auto flex items-center justify-center mb-2 border border-white/20">
+          <i data-lucide="check" class="w-6 h-6 text-hl-gold"></i>
+        </div>
+        <h3 class="text-xl font-black font-display tracking-tight">ĐẶT HÀNG THÀNH CÔNG!</h3>
+        <p class="text-xs text-stone-200 mt-1">Cảm ơn bạn đã lựa chọn Highlands Coffee</p>
+      </div>
+
+      <!-- Receipt Content (Printable) -->
+      <div class="p-5 overflow-y-auto space-y-4 flex-1 text-xs">
+        
+        <!-- Meta info -->
+        <div class="bg-stone-50 p-3.5 rounded-2xl border border-stone-200/80 space-y-1.5">
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">Mã đơn hàng:</span>
+            <span id="receiptOrderCode" class="font-mono font-black text-hl-red text-sm">HL-000000</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">Thời gian đặt:</span>
+            <span id="receiptOrderTime" class="font-medium text-stone-800">--:--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">Khách hàng:</span>
+            <span id="receiptCustName" class="font-bold text-stone-800">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">Số điện thoại:</span>
+            <span id="receiptCustPhone" class="font-medium text-stone-800">--</span>
+          </div>
+          <div class="flex justify-between items-start gap-4">
+            <span class="text-stone-500 shrink-0">Địa chỉ / Nhận tại:</span>
+            <span id="receiptAddress" class="font-medium text-stone-800 text-right">--</span>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">Phương thức thanh toán:</span>
+            <span id="receiptPayment" class="font-bold text-stone-800">--</span>
+          </div>
+        </div>
+
+        <!-- QR Code simulation for VietQR -->
+        <div id="receiptQrSection" class="p-3.5 bg-amber-50 border border-amber-200 rounded-2xl text-center space-y-2 hidden">
+          <div class="text-[11px] font-bold text-amber-900">Quét mã QR thanh toán nhanh qua Ngân hàng / Ví</div>
+          <div class="inline-block p-2 bg-white rounded-xl shadow-sm border border-stone-200">
+            <img id="receiptQrImg" src="" alt="VietQR" class="w-36 h-36 mx-auto object-contain">
+          </div>
+          <p class="text-[10px] text-stone-500">Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống tự động xác nhận.</p>
+        </div>
+
+        <!-- Item list -->
+        <div class="space-y-2">
+          <h5 class="font-bold text-stone-800 text-xs uppercase tracking-wider">Chi Tiết Đơn Hàng</h5>
+          <div id="receiptItemsContainer" class="space-y-2 divide-y divide-stone-100">
+            <!-- Dynamic receipt items -->
+          </div>
+        </div>
+
+        <!-- Financial breakdown -->
+        <div class="border-t border-stone-200 pt-3 space-y-1 text-stone-600">
+          <div class="flex justify-between">
+            <span>Tạm tính</span>
+            <span id="receiptSubtotal" class="font-mono">0đ</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Giảm giá</span>
+            <span id="receiptDiscount" class="font-mono text-emerald-600">-0đ</span>
+          </div>
+          <div class="flex justify-between">
+            <span>Phí vận chuyển</span>
+            <span id="receiptShipping" class="font-mono">0đ</span>
+          </div>
+          <div class="flex justify-between text-base font-black text-stone-900 pt-1 border-t border-stone-200">
+            <span>Tổng số tiền</span>
+            <span id="receiptTotal" class="font-mono text-hl-red text-base">0đ</span>
+          </div>
+        </div>
+
+        <!-- Estimated Delivery -->
+        <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 flex items-center gap-3 text-emerald-800">
+          <i data-lucide="clock" class="w-5 h-5 text-emerald-600 shrink-0"></i>
+          <div>
+            <div class="font-bold">Dự kiến giao hàng trong 25 - 35 phút</div>
+            <div class="text-[11px] text-emerald-700">Barista Highlands đang tiến hành chuẩn bị thức uống cho bạn.</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Receipt Footer Actions -->
+      <div class="p-4 bg-stone-50 border-t border-stone-100 flex gap-2 no-print">
+        <button 
+          onclick="window.print()" 
+          class="flex-1 bg-white hover:bg-stone-100 text-stone-700 border border-stone-300 font-bold py-2.5 px-3 rounded-xl transition-all flex items-center justify-center gap-1.5 text-xs"
+        >
+          <i data-lucide="printer" class="w-4 h-4"></i> In Hóa Đơn
+        </button>
+        <button 
+          onclick="app.closeReceiptModal()" 
+          class="flex-1 bg-hl-red hover:bg-hl-red-dark text-white font-bold py-2.5 px-3 rounded-xl shadow transition-all flex items-center justify-center gap-1.5 text-xs"
+        >
+          <i data-lucide="check" class="w-4 h-4"></i> Tiếp Tục Đặt Món
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ORDER HISTORY (LỊCH SỬ CÁC ĐƠN ĐÃ ĐẶT)           -->
+  <!-- ======================================================== -->
+  <div id="orderHistoryModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-xl w-full max-h-[85vh] flex flex-col overflow-hidden modal-enter border border-stone-200">
+      
+      <div class="p-4 sm:p-5 border-b border-stone-100 bg-hl-cream/50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-full bg-hl-red text-white flex items-center justify-center">
+            <i data-lucide="history" class="w-4 h-4 text-hl-gold"></i>
+          </div>
+          <h3 class="text-base sm:text-lg font-bold font-display text-hl-brown-dark">Lịch Sử Đơn Hàng Của Bạn</h3>
+        </div>
+        <button 
+          onclick="app.closeOrderHistory()" 
+          class="w-8 h-8 rounded-full bg-stone-200 hover:bg-stone-300 text-stone-600 flex items-center justify-center transition-colors"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <div id="orderHistoryList" class="p-4 overflow-y-auto space-y-3 flex-1 text-xs">
+        <!-- Rendered by app.renderOrderHistory() -->
+      </div>
+
+      <div class="p-4 bg-stone-50 border-t border-stone-100 text-right">
+        <button 
+          onclick="app.closeOrderHistory()" 
+          class="bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold px-5 py-2 rounded-xl text-xs transition-all"
+        >
+          Đóng
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: AUTHENTICATION (ĐĂNG NHẬP / ĐĂNG KÝ THÀNH VIÊN) -->
+  <!-- ======================================================== -->
+  <div id="authModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full flex flex-col overflow-hidden modal-enter border border-stone-200">
+      
+      <!-- Modal Header -->
+      <div class="p-5 bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown text-white relative text-center">
+        <button 
+          onclick="app.closeAuthModal()" 
+          class="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <div class="w-12 h-12 rounded-full bg-white/10 mx-auto flex items-center justify-center mb-2 border border-white/20">
+          <i data-lucide="coffee" class="w-6 h-6 text-hl-gold"></i>
+        </div>
+        <h3 class="text-lg font-black font-display tracking-tight uppercase" id="authModalTitle">Thành Viên Highlands</h3>
+        <p class="text-xs text-stone-200 mt-0.5">Tích điểm đổi quà & Đặt đồ uống nhanh chóng</p>
+      </div>
+
+      <!-- Tab Switcher -->
+      <div class="grid grid-cols-2 border-b border-stone-200 bg-stone-50 text-xs font-bold">
+        <button 
+          id="tabBtnLogin" 
+          onclick="app.switchAuthTab('login')" 
+          class="py-3 text-center border-b-2 border-hl-red text-hl-red bg-white transition-all"
+        >
+          Đăng Nhập
+        </button>
+        <button 
+          id="tabBtnRegister" 
+          onclick="app.switchAuthTab('register')" 
+          class="py-3 text-center border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-all"
+        >
+          Đăng Ký Thành Viên
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 overflow-y-auto max-h-[75vh] text-xs sm:text-sm">
+        
+        <!-- Form Đăng Nhập -->
+        <form id="loginForm" onsubmit="app.handleLoginSubmit(event)" class="space-y-3.5">
+          <div class="space-y-1">
+            <label for="loginUsername" class="font-bold text-stone-800">Tên đăng nhập</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-400">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </span>
+              <input 
+                type="text" 
+                id="loginUsername" 
+                required
+                placeholder="Nhập username" 
+                class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+              >
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <label for="loginPassword" class="font-bold text-stone-800">Mật khẩu</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-stone-400">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+              </span>
+              <input 
+                type="password" 
+                id="loginPassword" 
+                required
+                placeholder="Nhập mật khẩu" 
+                class="w-full pl-9 pr-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+              >
+            </div>
+          </div>
+
+          <!-- Demo account quick fill pill -->
+          <div class="p-2.5 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between text-xs">
+            <div class="text-[11px] text-amber-900">
+              <span class="font-bold">Tài khoản demo:</span> demo / 123456
+            </div>
+            <button 
+              type="button" 
+              onclick="app.fillDemoAccount()" 
+              class="text-[11px] text-hl-red font-bold hover:underline"
+            >
+              Điền nhanh
+            </button>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
+          >
+            <i data-lucide="log-in" class="w-4 h-4"></i>
+            <span>Đăng Nhập Ngay</span>
+          </button>
+        </form>
+
+        <!-- Form Đăng Ký -->
+        <form id="registerForm" onsubmit="app.handleRegisterSubmit(event)" class="space-y-3 hidden">
+          <div class="space-y-1">
+            <label for="regUsername" class="font-bold text-stone-800">Tên đăng nhập <span class="text-hl-red">*</span></label>
+            <input 
+              type="text" 
+              id="regUsername" 
+              required
+              placeholder="Ví dụ: nguyenvana (ít nhất 3 ký tự)" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="regPassword" class="font-bold text-stone-800">Mật khẩu <span class="text-hl-red">*</span></label>
+            <input 
+              type="password" 
+              id="regPassword" 
+              required
+              placeholder="Tối thiểu 6 ký tự" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="regFullName" class="font-bold text-stone-800">Họ và tên <span class="text-hl-red">*</span></label>
+            <input 
+              type="text" 
+              id="regFullName" 
+              required
+              placeholder="Nguyễn Văn A" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="regPhone" class="font-bold text-stone-800">Số điện thoại <span class="text-hl-red">*</span></label>
+            <input 
+              type="tel" 
+              id="regPhone" 
+              required
+              placeholder="0912345678 (10 chữ số)" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="regAddress" class="font-bold text-stone-800">Địa chỉ giao hàng mặc định</label>
+            <input 
+              type="text" 
+              id="regAddress" 
+              placeholder="Số nhà, đường, phường, quận..." 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5 pt-1"
+          >
+            <i data-lucide="user-plus" class="w-4 h-4"></i>
+            <span>Tạo Tài Khoản Thành Viên</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: USER PROFILE & PASSWORD (QUẢN LÝ THÔNG TIN)       -->
+  <!-- ======================================================== -->
+  <div id="profileModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-md w-full flex flex-col overflow-hidden modal-enter border border-stone-200">
+      
+      <!-- Profile Header -->
+      <div class="p-5 bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown text-white relative text-center">
+        <button 
+          onclick="app.closeProfileModal()" 
+          class="absolute top-4 right-4 w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors"
+        >
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+        <div class="w-14 h-14 rounded-full bg-white/10 mx-auto flex items-center justify-center mb-2 border-2 border-hl-gold shadow-md">
+          <span id="profileAvatarText" class="text-lg font-black text-white">HL</span>
+        </div>
+        <h3 class="text-base sm:text-lg font-bold font-display" id="profileHeaderName">Tên Người Dùng</h3>
+        <p class="text-xs text-hl-gold font-mono" id="profileHeaderUsername">@username</p>
+      </div>
+
+      <!-- Profile Tabs -->
+      <div class="grid grid-cols-2 border-b border-stone-200 bg-stone-50 text-xs font-bold">
+        <button 
+          id="profileTabBtnInfo" 
+          onclick="app.switchProfileTab('info')" 
+          class="py-3 text-center border-b-2 border-hl-red text-hl-red bg-white transition-all"
+        >
+          Thông Tin Cá Nhân
+        </button>
+        <button 
+          id="profileTabBtnPassword" 
+          onclick="app.switchProfileTab('password')" 
+          class="py-3 text-center border-b-2 border-transparent text-stone-500 hover:text-stone-800 transition-all"
+        >
+          Đổi Mật Khẩu
+        </button>
+      </div>
+
+      <!-- Profile Body -->
+      <div class="p-5 overflow-y-auto max-h-[75vh] text-xs sm:text-sm">
+        
+        <!-- Tab 1: Edit Profile Info -->
+        <form id="profileInfoForm" onsubmit="app.handleUpdateProfile(event)" class="space-y-3.5">
+          <div class="space-y-1">
+            <label class="font-bold text-stone-800">Tên tài khoản</label>
+            <input 
+              type="text" 
+              id="profileUsername" 
+              disabled 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 bg-stone-100 text-stone-500 font-mono outline-none cursor-not-allowed"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="profileFullName" class="font-bold text-stone-800">Họ và tên <span class="text-hl-red">*</span></label>
+            <input 
+              type="text" 
+              id="profileFullName" 
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="profilePhone" class="font-bold text-stone-800">Số điện thoại <span class="text-hl-red">*</span></label>
+            <input 
+              type="tel" 
+              id="profilePhone" 
+              required
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="profileAddress" class="font-bold text-stone-800">Địa chỉ giao hàng mặc định</label>
+            <textarea 
+              id="profileAddress" 
+              rows="2"
+              placeholder="Nhập địa chỉ nhận món thường dùng" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            ></textarea>
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
+          >
+            <i data-lucide="check" class="w-4 h-4"></i>
+            <span>Lưu Thay Đổi Thông Tin</span>
+          </button>
+        </form>
+
+        <!-- Tab 2: Change Password -->
+        <form id="profilePasswordForm" onsubmit="app.handleChangePassword(event)" class="space-y-3.5 hidden">
+          <div class="space-y-1">
+            <label for="oldPassword" class="font-bold text-stone-800">Mật khẩu hiện tại <span class="text-hl-red">*</span></label>
+            <input 
+              type="password" 
+              id="oldPassword" 
+              required
+              placeholder="Nhập mật khẩu đang dùng" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="newPassword" class="font-bold text-stone-800">Mật khẩu mới <span class="text-hl-red">*</span></label>
+            <input 
+              type="password" 
+              id="newPassword" 
+              required
+              placeholder="Ít nhất 6 ký tự" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <div class="space-y-1">
+            <label for="confirmPassword" class="font-bold text-stone-800">Xác nhận mật khẩu mới <span class="text-hl-red">*</span></label>
+            <input 
+              type="password" 
+              id="confirmPassword" 
+              required
+              placeholder="Nhập lại mật khẩu mới" 
+              class="w-full px-3.5 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none"
+            >
+          </div>
+
+          <button 
+            type="submit" 
+            class="w-full bg-hl-brown hover:bg-hl-brown-dark text-white font-bold py-3 px-4 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-1.5"
+          >
+            <i data-lucide="key" class="w-4 h-4"></i>
+            <span>Cập Nhật Mật Khẩu Mới</span>
+          </button>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+  <script>
+    // Initialize Lucide icons on load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+    });
+  </script>
+</body>
+</html>

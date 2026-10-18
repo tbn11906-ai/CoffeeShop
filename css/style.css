@@ -1,0 +1,152 @@
+/* Highlands Coffee Custom Styles */
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,400&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+:root {
+  --hl-red: #B22830;
+  --hl-red-dark: #8B1D23;
+  --hl-red-light: #D63D46;
+  --hl-brown: #53382C;
+  --hl-brown-dark: #38251D;
+  --hl-cream: #FAF6F0;
+  --hl-cream-dark: #F2EBE3;
+  --hl-gold: #D4AF37;
+  --hl-gold-dark: #B8860B;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', 'Montserrat', sans-serif;
+  background-color: var(--hl-cream);
+  color: #2D2422;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #FAF6F0;
+}
+::-webkit-scrollbar-thumb {
+  background: #D5C7B8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #B22830;
+}
+
+/* Glassmorphism Header */
+.glass-header {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(178, 40, 48, 0.12);
+}
+
+/* Card hover animation */
+.product-card {
+  transition: all 0.28s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 30px -10px rgba(83, 56, 44, 0.15), 0 0 0 1px rgba(212, 175, 55, 0.3);
+}
+
+/* Image zoom effect inside card */
+.product-img-wrapper img {
+  transition: transform 0.4s ease;
+}
+.product-card:hover .product-img-wrapper img {
+  transform: scale(1.06);
+}
+
+/* Floating cart bounce */
+@keyframes cartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+.cart-badge-bounce {
+  animation: cartPulse 0.35s ease-in-out;
+}
+
+/* Drawer Transitions */
+.drawer-backdrop {
+  transition: opacity 0.3s ease-in-out;
+}
+.drawer-content {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Modal animation */
+.modal-enter {
+  animation: modalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes modalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Custom checkbox / radio Highlands style */
+.hl-radio:checked + label {
+  border-color: #B22830;
+  background-color: #FFF5F5;
+  color: #B22830;
+  font-weight: 600;
+}
+.hl-radio:checked + label .hl-indicator {
+  border-color: #B22830;
+  background-color: #B22830;
+}
+
+.hl-topping-checkbox:checked + label {
+  border-color: #B22830;
+  background-color: #FFF8F6;
+}
+
+/* Hide scrollbar on category navigation while allowing scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Hero gradient */
+.hero-gradient {
+  background: linear-gradient(135deg, #8B1D23 0%, #B22830 50%, #53382C 100%);
+}
+
+.gold-shimmer {
+  background: linear-gradient(90deg, #D4AF37 0%, #FFEAA7 50%, #D4AF37 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Print styles for receipt */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #orderReceiptModal, #orderReceiptModal * {
+    visibility: visible;
+  }
+  #orderReceiptModal {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    background: white !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+}
