@@ -122,6 +122,7 @@
       this.updateCartBadge();
       this.initHero();
       this.checkAuth();
+      this.fetchLiveProducts();
 
       // Setup escape key to close modals
       document.addEventListener('keydown', (e) => {
@@ -135,6 +136,60 @@
           this.closeProfileModal();
         }
       });
+    },
+
+    fetchLiveProducts: async function () {
+      try {
+        const res = await fetch('/api/products');
+        if (!res.ok) return;
+        const data = await res.json();
+        if (data && data.success && Array.isArray(data.products) && data.products.length > 0) {
+          const apiMap = new Map();
+          data.products.forEach(p => apiMap.set(p.id, p));
+
+          state.products.forEach(p => {
+            if (apiMap.has(p.id)) {
+              const live = apiMap.get(p.id);
+              p.is_available = live.is_available;
+              p.price = live.price;
+              p.name = live.name;
+              p.description = live.description;
+              if (live.image) p.image = live.image;
+              apiMap.delete(p.id);
+            }
+          });
+
+          // Any extra products added from admin dashboard
+          apiMap.forEach((live, id) => {
+            state.products.push({
+              id: live.id,
+              name: live.name,
+              price: live.price,
+              image: live.image || window.HIGHLANDS_DATA.defaultPlaceholder,
+              imageExists: true,
+              description: live.description || '',
+              categoryId: live.category_id || 1,
+              categoryName: live.category_name || 'Cà phê',
+              isCake: live.category_id === 4,
+              isPhindi: (live.name || '').toLowerCase().includes('phindi'),
+              isBestSeller: false,
+              isNew: true,
+              is_available: live.is_available,
+              tags: [],
+              sizes: [
+                { code: 'S', name: 'Size Vừa (S)', extra: 0 },
+                { code: 'M', name: 'Size Lớn (M)', extra: 6000 },
+                { code: 'L', name: 'Size Đặc Biệt (L)', extra: 10000 }
+              ]
+            });
+          });
+
+          this.renderCategories();
+          this.renderProducts();
+        }
+      } catch (err) {
+        console.log('Live products sync skipped');
+      }
     },
 
     // ==========================================
@@ -203,6 +258,16 @@
               >
                 <i data-lucide="key-round" class="w-4 h-4 text-blue-600"></i> Đổi mật khẩu
               </button>
+
+              ${state.currentUser.is_admin ? `
+                <div class="border-t border-stone-100 my-1"></div>
+                <a 
+                  href="/admin" 
+                  class="w-full text-left px-4 py-2 text-xs font-bold text-hl-red bg-red-50 hover:bg-red-100 flex items-center gap-2 transition-colors"
+                >
+                  <i data-lucide="shield-check" class="w-4 h-4 text-hl-red"></i> Trang Quản Trị (Admin)
+                </a>
+              ` : ''}
 
               <div class="border-t border-stone-100 my-1"></div>
 
@@ -770,8 +835,15 @@
       const placeholder = window.HIGHLANDS_DATA.defaultPlaceholder;
 
       const html = items.map(product => {
+        const isOutOfStock = product.is_available === 0 || product.is_available === false;
         let badgeHtml = '';
-        if (product.isBestSeller) {
+        if (isOutOfStock) {
+          badgeHtml = `
+            <span class="absolute top-3 left-3 bg-stone-800/90 text-stone-200 text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 z-10 border border-stone-600/40">
+              <i data-lucide="clock" class="w-3 h-3 text-amber-400"></i> Tạm hết hàng
+            </span>
+          `;
+        } else if (product.isBestSeller) {
           badgeHtml = `
             <span class="absolute top-3 left-3 bg-gradient-to-r from-red-600 to-amber-600 text-white text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full shadow-md flex items-center gap-1 z-10">
               <i data-lucide="flame" class="w-3 h-3 fill-current text-yellow-300"></i> Best Seller
@@ -791,10 +863,14 @@
           `;
         }
 
+        const cardAction = isOutOfStock
+          ? `app.showOutOfStockNotice(${product.id})`
+          : `app.openCustomizeModalById(${product.id})`;
+
         return `
           <div 
-            class="product-card group bg-white rounded-3xl p-3.5 sm:p-4 border border-stone-200/90 shadow-sm flex flex-col justify-between cursor-pointer relative overflow-hidden"
-            onclick="app.openCustomizeModalById(${product.id})"
+            class="product-card group bg-white rounded-3xl p-3.5 sm:p-4 border border-stone-200/90 shadow-sm flex flex-col justify-between cursor-pointer relative overflow-hidden transition-all ${isOutOfStock ? 'opacity-70 grayscale-[25%]' : ''}"
+            onclick="${cardAction}"
           >
             ${badgeHtml}
 
@@ -827,20 +903,32 @@
               <div class="pt-3 flex items-center justify-between border-t border-stone-100/80 gap-2">
                 <div>
                   <span class="text-[10px] text-stone-400 block font-medium leading-none">Giá từ</span>
-                  <span class="text-sm sm:text-base font-extrabold text-hl-red font-mono">
+                  <span class="text-sm sm:text-base font-extrabold ${isOutOfStock ? 'text-stone-500 line-through' : 'text-hl-red'} font-mono">
                     ${formatVND(product.price)}
                   </span>
                 </div>
 
-                <button 
-                  type="button"
-                  onclick="event.stopPropagation(); app.openCustomizeModalById(${product.id})"
-                  class="bg-hl-red group-hover:bg-hl-red-dark text-white rounded-xl p-2 sm:px-3 sm:py-2 text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1 active:scale-95 shrink-0"
-                  title="Tùy chọn và mua"
-                >
-                  <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-hl-gold"></i>
-                  <span class="hidden sm:inline">Chọn mua</span>
-                </button>
+                ${isOutOfStock ? `
+                  <button 
+                    type="button"
+                    onclick="event.stopPropagation(); app.showOutOfStockNotice(${product.id})"
+                    class="bg-stone-200 hover:bg-stone-300 text-stone-600 rounded-xl p-2 sm:px-3 sm:py-2 text-xs font-bold transition-all flex items-center gap-1 shrink-0"
+                    title="Món này tạm hết hàng"
+                  >
+                    <i data-lucide="ban" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-stone-500"></i>
+                    <span class="hidden sm:inline">Tạm hết</span>
+                  </button>
+                ` : `
+                  <button 
+                    type="button"
+                    onclick="event.stopPropagation(); app.openCustomizeModalById(${product.id})"
+                    class="bg-hl-red group-hover:bg-hl-red-dark text-white rounded-xl p-2 sm:px-3 sm:py-2 text-xs font-bold shadow-md hover:shadow-lg transition-all flex items-center gap-1 active:scale-95 shrink-0"
+                    title="Tùy chọn và mua"
+                  >
+                    <i data-lucide="plus" class="w-3.5 h-3.5 sm:w-4 sm:h-4 text-hl-gold"></i>
+                    <span class="hidden sm:inline">Chọn mua</span>
+                  </button>
+                `}
               </div>
             </div>
 
@@ -902,12 +990,23 @@
       if (window.lucide) lucide.createIcons();
     },
 
+    showOutOfStockNotice: function (productId) {
+      const product = state.products.find(p => p.id === productId);
+      const name = product ? product.name : 'Món này';
+      this.showToast(`Thức uống "${name}" hiện đang tạm hết hàng, quý khách vui lòng chọn món khác nhé!`, 'warning');
+    },
+
     // ==========================================
     // DRINK CUSTOMIZATION MODAL
     // ==========================================
     openCustomizeModalById: function (productId) {
       const product = state.products.find(p => p.id === productId);
       if (!product) return;
+
+      if (product.is_available === 0 || product.is_available === false) {
+        this.showOutOfStockNotice(productId);
+        return;
+      }
 
       state.customizingProduct = product;
       

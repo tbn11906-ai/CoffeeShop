@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Highlands Coffee</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            hl: {
+              red: '#B22830',
+              'red-dark': '#8B1D23',
+              'red-light': '#D63D46',
+              brown: '#53382C',
+              'brown-dark': '#38251D',
+              cream: '#FAF6F0',
+              'cream-dark': '#F2EBE3',
+              gold: '#D4AF37',
+              'gold-dark': '#B8860B',
+              'gold-light': '#FDF6E2'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Montserrat', 'sans-serif'],
+            display: ['Montserrat', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts & Lucide Icons -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Chart.js for Dashboard Visualizations -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    body { font-family: 'Plus Jakarta Sans', 'Montserrat', sans-serif; }
+    .tab-active {
+      background-color: #B22830 !important;
+      color: white !important;
+      font-weight: 700;
+    }
+    .tab-active i {
+      color: #D4AF37 !important;
+    }
+  </style>
+</head>
+<body class="bg-stone-100 text-stone-800 antialiased min-h-screen flex flex-col md:flex-row">
+
+  <!-- ======================================================== -->
+  <!-- SIDEBAR NAVIGATION                                       -->
+  <!-- ======================================================== -->
+  <aside class="w-full md:w-64 bg-hl-brown-dark text-stone-200 flex flex-col shrink-0 shadow-xl md:min-h-screen">
+    
+    <!-- Brand header -->
+    <div class="p-5 border-b border-white/10 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-hl-red flex items-center justify-center border border-hl-gold shadow-md">
+          <i data-lucide="coffee" class="w-5 h-5 text-hl-gold"></i>
+        </div>
+        <div>
+          <span class="font-display font-black text-white text-base tracking-tight block">HIGHLANDS</span>
+          <span class="text-[10px] text-hl-gold font-bold uppercase tracking-widest block -mt-1">ADMIN PORTAL</span>
+        </div>
+      </div>
+      <!-- Mobile menu toggle button -->
+      <button onclick="toggleMobileMenu()" class="md:hidden p-2 text-stone-300 hover:text-white">
+        <i data-lucide="menu" class="w-5 h-5"></i>
+      </button>
+    </div>
+
+    <!-- Navigation links -->
+    <nav id="sidebarNav" class="p-4 space-y-1.5 flex-1 hidden md:block">
+      <button 
+        onclick="switchTab('dashboard')" 
+        id="navBtn-dashboard"
+        class="nav-btn tab-active w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-300 hover:bg-white/10 transition-all text-left"
+      >
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-hl-gold"></i>
+        <span>Tổng Quan Thống Kê</span>
+      </button>
+
+      <button 
+        onclick="switchTab('orders')" 
+        id="navBtn-orders"
+        class="nav-btn w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-300 hover:bg-white/10 transition-all text-left"
+      >
+        <div class="flex items-center gap-3">
+          <i data-lucide="clipboard-list" class="w-4 h-4 text-stone-400"></i>
+          <span>Quản Lý Đơn Hàng</span>
+        </div>
+        <span id="sidebarPendingBadge" class="bg-amber-500 text-stone-900 font-extrabold text-[10px] px-2 py-0.5 rounded-full hidden">0</span>
+      </button>
+
+      <button 
+        onclick="switchTab('menu')" 
+        id="navBtn-menu"
+        class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-300 hover:bg-white/10 transition-all text-left"
+      >
+        <i data-lucide="coffee" class="w-4 h-4 text-stone-400"></i>
+        <span>Quản Lý Thực Đơn</span>
+      </button>
+
+      <button 
+        onclick="switchTab('sync')" 
+        id="navBtn-sync"
+        class="nav-btn w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-stone-300 hover:bg-white/10 transition-all text-left"
+      >
+        <i data-lucide="file-spreadsheet" class="w-4 h-4 text-stone-400"></i>
+        <span>Nhập / Xuất Excel (CSV)</span>
+      </button>
+
+      <div class="pt-4 border-t border-white/10 mt-4 space-y-1">
+        <a 
+          href="/" 
+          target="_blank"
+          class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-emerald-300 hover:bg-white/10 transition-all"
+        >
+          <i data-lucide="external-link" class="w-4 h-4"></i>
+          <span>Xem Trang Bán Hàng</span>
+        </a>
+
+        <a 
+          href="/admin/logout" 
+          class="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-xs font-semibold text-red-300 hover:bg-red-950/40 transition-all"
+        >
+          <i data-lucide="log-out" class="w-4 h-4"></i>
+          <span>Đăng Xuất Admin</span>
+        </a>
+      </div>
+    </nav>
+
+    <!-- User status footer -->
+    <div class="p-4 border-t border-white/10 bg-black/20 text-xs hidden md:flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-hl-gold/20 text-hl-gold flex items-center justify-center font-bold">
+        AD
+      </div>
+      <div class="min-w-0 flex-1">
+        <p class="font-bold text-white truncate">{{ session.get('admin_username', 'admin') }}</p>
+        <p class="text-[10px] text-stone-400">Quản trị viên</p>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ======================================================== -->
+  <!-- MAIN CONTENT AREA                                        -->
+  <!-- ======================================================== -->
+  <main class="flex-1 flex flex-col min-w-0 overflow-y-auto">
+    
+    <!-- Top Bar -->
+    <header class="bg-white border-b border-stone-200 px-6 py-4 flex items-center justify-between shadow-sm sticky top-0 z-30">
+      <div>
+        <h2 id="pageTitle" class="text-lg md:text-xl font-bold font-display text-stone-900">Tổng Quan Thống Kê</h2>
+        <p id="pageSubtitle" class="text-xs text-stone-500">Dữ liệu cập nhật theo thời gian thực từ cơ sở dữ liệu SQLite</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <button 
+          onclick="refreshCurrentTab()" 
+          class="p-2 rounded-xl bg-stone-100 hover:bg-stone-200 text-stone-700 transition-colors text-xs font-semibold flex items-center gap-1.5"
+          title="Làm mới dữ liệu"
+        >
+          <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+          <span class="hidden sm:inline">Làm mới</span>
+        </button>
+
+        <a 
+          href="/" 
+          class="hidden sm:flex items-center gap-1.5 px-3 py-2 rounded-xl bg-hl-red text-white text-xs font-bold hover:bg-hl-red-dark transition-all shadow-sm"
+        >
+          <i data-lucide="store" class="w-3.5 h-3.5"></i>
+          <span>Trang bán hàng</span>
+        </a>
+      </div>
+    </header>
+
+    <!-- Tab Contents Container -->
+    <div class="p-4 sm:p-6 lg:p-8 flex-1 space-y-6">
+
+      <!-- ======================================================== -->
+      <!-- TAB 1: DASHBOARD OVERVIEW                                -->
+      <!-- ======================================================== -->
+      <section id="tab-dashboard" class="tab-content space-y-6">
+        
+        <!-- 4 Metric Cards -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+          
+          <!-- Card 1: Revenue -->
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+              <i data-lucide="wallet" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Tổng Doanh Thu</p>
+              <h3 id="statRevenue" class="text-xl sm:text-2xl font-black font-mono text-stone-900">0đ</h3>
+              <p class="text-[10px] text-emerald-600 font-medium flex items-center gap-1 mt-0.5">
+                <i data-lucide="trending-up" class="w-3 h-3"></i> Đơn không hủy
+              </p>
+            </div>
+          </div>
+
+          <!-- Card 2: Total Orders -->
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+              <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Tổng Đơn Hàng</p>
+              <h3 id="statOrders" class="text-xl sm:text-2xl font-black font-mono text-stone-900">0</h3>
+              <p class="text-[10px] text-stone-400 font-medium mt-0.5">Tất cả thời gian</p>
+            </div>
+          </div>
+
+          <!-- Card 3: Pending Orders -->
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+              <i data-lucide="clock" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Đơn Chờ Xử Lý</p>
+              <h3 id="statPending" class="text-xl sm:text-2xl font-black font-mono text-amber-600">0</h3>
+              <p class="text-[10px] text-amber-600 font-medium mt-0.5">Cần pha chế & giao</p>
+            </div>
+          </div>
+
+          <!-- Card 4: Total Menu Items -->
+          <div class="bg-white p-5 rounded-3xl border border-stone-200/90 shadow-sm flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-hl-red/10 text-hl-red flex items-center justify-center shrink-0">
+              <i data-lucide="coffee" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <p class="text-xs text-stone-500 font-semibold uppercase tracking-wider">Tổng Số Món Menu</p>
+              <h3 id="statProducts" class="text-xl sm:text-2xl font-black font-mono text-stone-900">0</h3>
+              <p class="text-[10px] text-hl-gold-dark font-medium mt-0.5">4 danh mục chính</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Charts & Top Selling Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          
+          <!-- Chart Column -->
+          <div class="lg:col-span-7 bg-white p-5 sm:p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold font-display text-sm sm:text-base text-stone-800 flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-hl-red"></i> Phân Bố Trạng Thái Đơn Hàng
+              </h4>
+              <span class="text-xs text-stone-400">Biểu đồ tỷ lệ</span>
+            </div>
+            <div class="h-64 flex items-center justify-center">
+              <canvas id="statusChart"></canvas>
+            </div>
+          </div>
+
+          <!-- Top Selling Column -->
+          <div class="lg:col-span-5 bg-white p-5 sm:p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <div class="flex items-center justify-between">
+              <h4 class="font-bold font-display text-sm sm:text-base text-stone-800 flex items-center gap-2">
+                <i data-lucide="flame" class="w-4 h-4 text-orange-500"></i> Top Món Bán Chạy Nhất
+              </h4>
+              <button onclick="switchTab('orders')" class="text-xs text-hl-red hover:underline font-semibold">Xem tất cả</button>
+            </div>
+
+            <div id="topSellingContainer" class="space-y-3 divide-y divide-stone-100">
+              <!-- Rendered by loadDashboardStats() -->
+            </div>
+          </div>
+
+        </div>
+
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- TAB 2: ORDERS MANAGEMENT                                 -->
+      <!-- ======================================================== -->
+      <section id="tab-orders" class="tab-content space-y-4 hidden">
+        
+        <!-- Orders Filter Toolbar -->
+        <div class="bg-white p-4 rounded-3xl border border-stone-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+          
+          <!-- Search box -->
+          <div class="w-full md:w-80 relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-stone-400">
+              <i data-lucide="search" class="w-4 h-4"></i>
+            </span>
+            <input 
+              type="text" 
+              id="orderSearchInput"
+              placeholder="Tìm theo SĐT, Tên, Mã đơn (HL-...)" 
+              class="w-full pl-10 pr-4 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm focus:border-hl-red outline-none"
+              oninput="handleOrderSearch(this.value)"
+            >
+          </div>
+
+          <!-- Status Filter Buttons -->
+          <div class="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1 md:pb-0" id="orderStatusFilters">
+            <button onclick="filterOrdersByStatus('ALL')" class="order-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-hl-red text-white">Tất cả</button>
+            <button onclick="filterOrdersByStatus('Chờ xác nhận')" class="order-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Chờ xác nhận</button>
+            <button onclick="filterOrdersByStatus('Đang pha chế')" class="order-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Đang pha chế</button>
+            <button onclick="filterOrdersByStatus('Đang giao hàng')" class="order-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Đang giao</button>
+            <button onclick="filterOrdersByStatus('Hoàn thành')" class="order-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Hoàn thành</button>
+            <button onclick="filterOrdersByStatus('Đã hủy')" class="order-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200">Đã hủy</button>
+          </div>
+
+        </div>
+
+        <!-- Orders Table Card -->
+        <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-stone-50 border-b border-stone-200 text-stone-500 font-bold uppercase tracking-wider">
+                  <th class="p-3.5">Mã Đơn / Thời Gian</th>
+                  <th class="p-3.5">Khách Hàng</th>
+                  <th class="p-3.5">Hình Thức & Địa Chỉ</th>
+                  <th class="p-3.5">Chi Tiết Món</th>
+                  <th class="p-3.5">Tổng Tiền</th>
+                  <th class="p-3.5">Trạng Thái</th>
+                  <th class="p-3.5 text-center">Đổi Trạng Thái</th>
+                </tr>
+              </thead>
+              <tbody id="ordersTableBody" class="divide-y divide-stone-100">
+                <!-- Injected by loadAdminOrders() -->
+              </tbody>
+            </table>
+          </div>
+          <div id="ordersEmptyState" class="p-10 text-center text-stone-400 hidden">
+            <i data-lucide="clipboard-x" class="w-10 h-10 mx-auto mb-2 opacity-50"></i>
+            <p class="font-bold text-stone-600">Không tìm thấy đơn hàng phù hợp</p>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- TAB 3: MENU CRUD MANAGEMENT                              -->
+      <!-- ======================================================== -->
+      <section id="tab-menu" class="tab-content space-y-4 hidden">
+        
+        <!-- Menu Toolbar -->
+        <div class="bg-white p-4 rounded-3xl border border-stone-200 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <div class="relative flex-1 sm:w-64">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-stone-400">
+                <i data-lucide="search" class="w-4 h-4"></i>
+              </span>
+              <input 
+                type="text" 
+                id="menuSearchInput" 
+                placeholder="Tìm món trong menu..." 
+                class="w-full pl-10 pr-4 py-2 rounded-xl border border-stone-200 text-xs sm:text-sm focus:border-hl-red outline-none"
+                oninput="handleMenuSearch(this.value)"
+              >
+            </div>
+
+            <select 
+              id="menuCategoryFilter" 
+              onchange="handleMenuCategoryFilter(this.value)"
+              class="px-3 py-2 rounded-xl border border-stone-200 text-xs font-semibold bg-white outline-none focus:border-hl-red"
+            >
+              <option value="0">Tất cả danh mục</option>
+              <option value="1">Cà phê</option>
+              <option value="2">Freeze</option>
+              <option value="3">Trà</option>
+              <option value="4">Bánh ngọt</option>
+            </select>
+          </div>
+
+          <button 
+            onclick="openProductModal('add')" 
+            class="w-full sm:w-auto bg-hl-red hover:bg-hl-red-dark text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95"
+          >
+            <i data-lucide="plus" class="w-4 h-4 text-hl-gold"></i>
+            <span>Thêm Món Mới</span>
+          </button>
+        </div>
+
+        <!-- Products Table Card -->
+        <div class="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-stone-50 border-b border-stone-200 text-stone-500 font-bold uppercase tracking-wider">
+                  <th class="p-3.5">Ảnh</th>
+                  <th class="p-3.5">Tên Đồ Uống / Bánh</th>
+                  <th class="p-3.5">Danh Mục</th>
+                  <th class="p-3.5">Giá Tiền (VNĐ)</th>
+                  <th class="p-3.5 text-center">Trạng Thái Kho</th>
+                  <th class="p-3.5 text-center">Thao Tác</th>
+                </tr>
+              </thead>
+              <tbody id="productsTableBody" class="divide-y divide-stone-100">
+                <!-- Injected by loadAdminProducts() -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ======================================================== -->
+      <!-- TAB 4: IMPORT & EXPORT EXCEL (CSV)                       -->
+      <!-- ======================================================== -->
+      <section id="tab-sync" class="tab-content space-y-6 hidden">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- Export Card -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <i data-lucide="download-cloud" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h4 class="font-bold font-display text-base text-stone-900">Xuất Dữ Liệu Ra Excel / CSV</h4>
+              <p class="text-xs text-stone-500 mt-1">
+                Tải toàn bộ dữ liệu Menu hoặc Đơn hàng về máy tính dưới dạng file CSV UTF-8 (mở chuẩn tiếng Việt trong Excel).
+              </p>
+            </div>
+
+            <div class="pt-2 space-y-2.5">
+              <a 
+                href="/api/admin/export/menu" 
+                class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow transition-all"
+              >
+                <i data-lucide="file-spreadsheet" class="w-4 h-4"></i>
+                <span>Xuất Thực Đơn (Menu) Ra Excel/CSV</span>
+              </a>
+
+              <a 
+                href="/api/admin/export/orders" 
+                class="w-full bg-stone-800 hover:bg-black text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow transition-all"
+              >
+                <i data-lucide="clipboard-list" class="w-4 h-4"></i>
+                <span>Xuất Danh Sách Đơn Hàng Ra Excel/CSV</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Import Card -->
+          <div class="bg-white p-6 rounded-3xl border border-stone-200 shadow-sm space-y-4">
+            <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center">
+              <i data-lucide="upload-cloud" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h4 class="font-bold font-display text-base text-stone-900">Nhập Thực Đơn Từ File Excel/CSV</h4>
+              <p class="text-xs text-stone-500 mt-1">
+                Cập nhật nhanh hàng loạt món và giá bán từ file CSV. Hệ thống tự động cập nhật món đã có hoặc thêm món mới.
+              </p>
+            </div>
+
+            <form id="importForm" onsubmit="handleImportMenu(event)" class="pt-2 space-y-3">
+              <div class="border-2 border-dashed border-stone-300 hover:border-hl-red rounded-2xl p-4 text-center cursor-pointer transition-colors bg-stone-50">
+                <input type="file" id="csvFileInput" accept=".csv" required class="block w-full text-xs text-stone-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-hl-red file:text-white hover:file:bg-hl-red-dark cursor-pointer">
+              </div>
+
+              <button 
+                type="submit" 
+                id="btnImportSubmit"
+                class="w-full bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow transition-all"
+              >
+                <i data-lucide="check" class="w-4 h-4 text-hl-gold"></i>
+                <span>Tải Lên & Đồng Bộ Menu Ngay</span>
+              </button>
+            </form>
+
+            <div id="importResult" class="text-xs p-3 rounded-xl hidden"></div>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ADD / EDIT PRODUCT                                -->
+  <!-- ======================================================== -->
+  <div id="productModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden border border-stone-200">
+      
+      <div class="p-4 sm:p-5 bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown text-white flex items-center justify-between">
+        <h3 class="font-bold font-display text-sm sm:text-base" id="productModalTitle">Thêm Món Mới</h3>
+        <button onclick="closeProductModal()" class="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <form id="productForm" onsubmit="handleProductSubmit(event)" class="p-5 overflow-y-auto space-y-3.5 flex-1 text-xs">
+        <input type="hidden" id="prodEditId" value="">
+
+        <div class="space-y-1">
+          <label class="font-bold text-stone-700">Tên món đồ uống / bánh <span class="text-hl-red">*</span></label>
+          <input type="text" id="prodName" required placeholder="Ví dụ: PHIN ĐEN ĐÁ" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:border-hl-red outline-none text-xs">
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1">
+            <label class="font-bold text-stone-700">Danh mục <span class="text-hl-red">*</span></label>
+            <select id="prodCategory" required class="w-full px-3 py-2 rounded-xl border border-stone-200 focus:border-hl-red outline-none text-xs bg-white">
+              <option value="1">Cà phê</option>
+              <option value="2">Freeze</option>
+              <option value="3">Trà</option>
+              <option value="4">Bánh ngọt</option>
+            </select>
+          </div>
+
+          <div class="space-y-1">
+            <label class="font-bold text-stone-700">Giá bán (Size chuẩn) <span class="text-hl-red">*</span></label>
+            <input type="number" id="prodPrice" required placeholder="45000" min="0" step="1000" class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:border-hl-red outline-none text-xs font-mono font-bold">
+          </div>
+        </div>
+
+        <div class="space-y-1">
+          <label class="font-bold text-stone-700">Mô tả sản phẩm</label>
+          <textarea id="prodDesc" rows="2" placeholder="Hương vị cà phê truyền thống..." class="w-full px-3.5 py-2 rounded-xl border border-stone-200 focus:border-hl-red outline-none text-xs"></textarea>
+        </div>
+
+        <!-- Image Upload or Link -->
+        <div class="space-y-1.5 p-3 bg-stone-50 rounded-2xl border border-stone-200">
+          <label class="font-bold text-stone-700 block">Hình ảnh món</label>
+          
+          <div class="space-y-2">
+            <div>
+              <span class="text-[11px] text-stone-500 block mb-1">Cách 1: Tải file ảnh lên máy chủ</span>
+              <input type="file" id="prodImageFile" accept="image/*" class="text-xs file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:bg-stone-200 file:text-stone-700 hover:file:bg-stone-300 cursor-pointer">
+            </div>
+
+            <div>
+              <span class="text-[11px] text-stone-500 block mb-1">Cách 2: Hoặc nhập đường dẫn ảnh (URL hoặc images/products/...)</span>
+              <input type="text" id="prodImageUrl" placeholder="images/products/Phin_Den_Da.jpg" class="w-full px-3 py-1.5 rounded-lg border border-stone-200 text-xs outline-none">
+            </div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <input type="checkbox" id="prodAvailable" checked class="w-4 h-4 text-hl-red rounded border-stone-300">
+          <label for="prodAvailable" class="font-bold text-stone-700 cursor-pointer">Món này đang còn hàng (Hiển thị nút mua trên web)</label>
+        </div>
+
+        <div class="pt-3 border-t border-stone-100 flex gap-2">
+          <button type="button" onclick="closeProductModal()" class="flex-1 bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold py-2.5 rounded-xl transition-all">Hủy</button>
+          <button type="submit" class="flex-1 bg-hl-red hover:bg-hl-red-dark text-white font-bold py-2.5 rounded-xl shadow transition-all">Lưu Món</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- ======================================================== -->
+  <!-- MODAL: ORDER DETAILS                                     -->
+  <!-- ======================================================== -->
+  <div id="orderDetailModal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden opacity-0 transition-opacity duration-200">
+    <div class="bg-white rounded-3xl shadow-2xl max-w-lg w-full max-h-[90vh] flex flex-col overflow-hidden border border-stone-200">
+      <div class="p-4 sm:p-5 bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown text-white flex items-center justify-between">
+        <div>
+          <h3 class="font-bold font-display text-sm sm:text-base">Chi Tiết Đơn Hàng</h3>
+          <p id="modalDetailCode" class="text-xs text-amber-200 font-mono">HL-000000</p>
+        </div>
+        <button onclick="closeOrderDetailModal()" class="w-7 h-7 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+      <div id="modalDetailBody" class="p-5 overflow-y-auto space-y-3 flex-1 text-xs">
+        <!-- Rendered by openOrderDetail() -->
+      </div>
+      <div class="p-3 bg-stone-50 border-t border-stone-200 text-right">
+        <button onclick="closeOrderDetailModal()" class="bg-stone-200 hover:bg-stone-300 text-stone-700 font-bold px-4 py-2 rounded-xl text-xs">Đóng</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <!-- Admin Application Logic -->
+  <script>
+    let statusChartInstance = null;
+    let allOrders = [];
+    let allProducts = [];
+    let activeStatusFilter = 'ALL';
+    let currentTab = 'dashboard';
+
+    function formatVND(amt) {
+      return new Intl.NumberFormat('vi-VN').format(amt) + 'đ';
+    }
+
+    function toggleMobileMenu() {
+      const nav = document.getElementById('sidebarNav');
+      nav.classList.toggle('hidden');
+    }
+
+    function switchTab(tabName) {
+      currentTab = tabName;
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('tab-active'));
+
+      const targetTab = document.getElementById('tab-' + tabName);
+      const targetBtn = document.getElementById('navBtn-' + tabName);
+      if (targetTab) targetTab.classList.remove('hidden');
+      if (targetBtn) targetBtn.classList.add('tab-active');
+
+      const titles = {
+        dashboard: ['Tổng Quan Thống Kê', 'Dữ liệu thời gian thực từ cơ sở dữ liệu SQLite'],
+        orders: ['Quản Lý Đơn Hàng', 'Cập nhật trạng thái pha chế và giao hàng'],
+        menu: ['Quản Lý Thực Đơn', 'Thêm mới, sửa giá và bật/tắt trạng thái còn hàng'],
+        sync: ['Nhập & Xuất Dữ Liệu Excel/CSV', 'Đồng bộ hóa dữ liệu nhanh chóng']
+      };
+
+      if (titles[tabName]) {
+        document.getElementById('pageTitle').textContent = titles[tabName][0];
+        document.getElementById('pageSubtitle').textContent = titles[tabName][1];
+      }
+
+      refreshCurrentTab();
+    }
+
+    function refreshCurrentTab() {
+      if (currentTab === 'dashboard') loadDashboardStats();
+      else if (currentTab === 'orders') loadAdminOrders();
+      else if (currentTab === 'menu') loadAdminProducts();
+    }
+
+    // ==========================================
+    // 1. DASHBOARD OVERVIEW & STATS
+    // ==========================================
+    async function loadDashboardStats() {
+      try {
+        const res = await fetch('/api/admin/stats');
+        const data = await res.json();
+        if (!data.success) return;
+
+        const s = data.stats;
+        document.getElementById('statRevenue').textContent = formatVND(s.total_revenue);
+        document.getElementById('statOrders').textContent = s.total_orders;
+        document.getElementById('statPending').textContent = s.pending_orders;
+        document.getElementById('statProducts').textContent = s.total_products;
+
+        const sbBadge = document.getElementById('sidebarPendingBadge');
+        if (s.pending_orders > 0) {
+          sbBadge.textContent = s.pending_orders;
+          sbBadge.classList.remove('hidden');
+        } else {
+          sbBadge.classList.add('hidden');
+        }
+
+        // Top selling products list
+        const topContainer = document.getElementById('topSellingContainer');
+        if (s.top_selling && s.top_selling.length > 0) {
+          topContainer.innerHTML = s.top_selling.map((item, idx) => `
+            <div class="pt-2 flex items-center justify-between text-xs">
+              <div class="flex items-center gap-3 min-w-0">
+                <span class="w-5 h-5 rounded-full ${idx === 0 ? 'bg-amber-500 text-white' : 'bg-stone-200 text-stone-700'} flex items-center justify-center font-bold text-[10px] shrink-0">
+                  ${idx + 1}
+                </span>
+                <img src="${item.product_image}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'40\\' height=\\'40\\'%3E%3Crect width=\\'40\\' height=\\'40\\' fill=\\'%23eee\\'/%3E%3C/svg%3E'" class="w-9 h-9 rounded-xl object-contain bg-stone-50 border border-stone-200 p-0.5 shrink-0">
+                <div class="min-w-0">
+                  <p class="font-bold text-stone-800 truncate">${item.product_name}</p>
+                  <p class="text-[10px] text-stone-400">Đã bán: <span class="font-bold text-stone-700">${item.total_qty} ly</span></p>
+                </div>
+              </div>
+              <span class="font-mono font-bold text-hl-red shrink-0">${formatVND(item.total_sales)}</span>
+            </div>
+          `).join('');
+        }
+
+        // Render Chart
+        renderStatusChart(s.status_breakdown || {});
+
+      } catch (err) {
+        console.error('Error loading dashboard stats', err);
+      }
+    }
+
+    function renderStatusChart(breakdown) {
+      const ctx = document.getElementById('statusChart')?.getContext('2d');
+      if (!ctx) return;
+
+      const labels = ['Chờ xác nhận', 'Đang pha chế', 'Đang giao hàng', 'Hoàn thành', 'Đã hủy'];
+      const dataValues = labels.map(l => breakdown[l] || 0);
+
+      if (statusChartInstance) {
+        statusChartInstance.destroy();
+      }
+
+      statusChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: labels,
+          datasets: [{
+            data: dataValues,
+            backgroundColor: ['#F59E0B', '#3B82F6', '#8B5CF6', '#10B981', '#EF4444'],
+            borderWidth: 2,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: { boxWidth: 12, font: { size: 11 } }
+            }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // 2. ORDERS MANAGEMENT
+    // ==========================================
+    async function loadAdminOrders() {
+      try {
+        const res = await fetch('/api/admin/orders');
+        const data = await res.json();
+        if (data.success) {
+          allOrders = data.orders || [];
+          renderOrdersTable();
+        }
+      } catch (err) {
+        console.error('Error loading orders', err);
+      }
+    }
+
+    function renderOrdersTable() {
+      const tbody = document.getElementById('ordersTableBody');
+      const empty = document.getElementById('ordersEmptyState');
+      const search = (document.getElementById('orderSearchInput')?.value || '').toLowerCase().trim();
+
+      let filtered = [...allOrders];
+
+      if (activeStatusFilter !== 'ALL') {
+        filtered = filtered.filter(o => o.status === activeStatusFilter);
+      }
+
+      if (search) {
+        filtered = filtered.filter(o => 
+          (o.order_code && o.order_code.toLowerCase().includes(search)) ||
+          (o.customer_name && o.customer_name.toLowerCase().includes(search)) ||
+          (o.customer_phone && o.customer_phone.includes(search))
+        );
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+
+      const statusBadgeStyles = {
+        'Chờ xác nhận': 'bg-amber-100 text-amber-800 border-amber-300',
+        'Đang pha chế': 'bg-blue-100 text-blue-800 border-blue-300',
+        'Đang giao hàng': 'bg-purple-100 text-purple-800 border-purple-300',
+        'Hoàn thành': 'bg-emerald-100 text-emerald-800 border-emerald-300',
+        'Đã hủy': 'bg-red-100 text-red-800 border-red-300'
+      };
+
+      tbody.innerHTML = filtered.map(o => {
+        const timeStr = new Date(o.created_at).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit' });
+        const itemsSummary = (o.items || []).map(i => `${i.quantity}x ${i.product_name}`).join(', ');
+        const badgeStyle = statusBadgeStyles[o.status] || 'bg-stone-100 text-stone-700 border-stone-200';
+
+        return `
+          <tr class="hover:bg-stone-50 transition-colors">
+            <td class="p-3.5">
+              <span class="font-mono font-bold text-hl-red text-xs cursor-pointer hover:underline" onclick="openOrderDetail(${o.id})">${o.order_code}</span>
+              <span class="text-[10px] text-stone-400 block">${timeStr}</span>
+            </td>
+            <td class="p-3.5">
+              <span class="font-bold text-stone-800 block">${o.customer_name}</span>
+              <span class="text-[11px] text-stone-500 font-mono">${o.customer_phone}</span>
+            </td>
+            <td class="p-3.5 max-w-[200px]">
+              <span class="inline-block text-[10px] font-bold px-1.5 py-0.2 rounded ${o.order_type === 'takeaway' ? 'bg-amber-100 text-amber-900' : 'bg-sky-100 text-sky-900'} mb-0.5">
+                ${o.order_type === 'takeaway' ? 'Tại quán' : 'Giao tận nơi'}
+              </span>
+              <p class="text-[11px] text-stone-600 truncate">${o.customer_address}</p>
+            </td>
+            <td class="p-3.5 max-w-[220px]">
+              <p class="text-[11px] text-stone-700 line-clamp-2" title="${itemsSummary}">${itemsSummary || 'Chi tiết món'}</p>
+            </td>
+            <td class="p-3.5 font-mono font-bold text-stone-900 text-xs">
+              ${formatVND(o.total_amount)}
+            </td>
+            <td class="p-3.5">
+              <span class="border text-[10px] font-bold px-2 py-0.5 rounded-full inline-block ${badgeStyle}">
+                ${o.status}
+              </span>
+            </td>
+            <td class="p-3.5 text-center">
+              <select 
+                onchange="updateOrderStatus(${o.id}, this.value)"
+                class="bg-white border border-stone-300 hover:border-hl-red rounded-lg px-2 py-1 text-[11px] font-semibold text-stone-700 outline-none cursor-pointer"
+              >
+                <option value="Chờ xác nhận" ${o.status === 'Chờ xác nhận' ? 'selected' : ''}>Chờ xác nhận</option>
+                <option value="Đang pha chế" ${o.status === 'Đang pha chế' ? 'selected' : ''}>Đang pha chế</option>
+                <option value="Đang giao hàng" ${o.status === 'Đang giao hàng' ? 'selected' : ''}>Đang giao hàng</option>
+                <option value="Hoàn thành" ${o.status === 'Hoàn thành' ? 'selected' : ''}>Hoàn thành</option>
+                <option value="Đã hủy" ${o.status === 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterOrdersByStatus(status) {
+      activeStatusFilter = status;
+      document.querySelectorAll('.order-filter-btn').forEach(btn => {
+        if ((status === 'ALL' && btn.textContent === 'Tất cả') || btn.textContent === status) {
+          btn.className = 'order-filter-btn px-3 py-1.5 rounded-full text-xs font-bold bg-hl-red text-white';
+        } else {
+          btn.className = 'order-filter-btn px-3 py-1.5 rounded-full text-xs font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200';
+        }
+      });
+      renderOrdersTable();
+    }
+
+    function handleOrderSearch(val) {
+      renderOrdersTable();
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+      try {
+        const res = await fetch(`/api/admin/orders/${orderId}/status`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Đã chuyển đơn sang: ${newStatus}`, 'success');
+          // Update local array
+          const ord = allOrders.find(o => o.id === orderId);
+          if (ord) ord.status = newStatus;
+          renderOrdersTable();
+        } else {
+          showToast(data.message || 'Cập nhật thất bại', 'warning');
+        }
+      } catch (err) {
+        showToast('Lỗi cập nhật trạng thái đơn', 'warning');
+      }
+    }
+
+    function openOrderDetail(orderId) {
+      const o = allOrders.find(x => x.id === orderId);
+      if (!o) return;
+
+      const modal = document.getElementById('orderDetailModal');
+      document.getElementById('modalDetailCode').textContent = `${o.order_code} • ${new Date(o.created_at).toLocaleString('vi-VN')}`;
+
+      const itemsHtml = (o.items || []).map(it => {
+        const extras = [];
+        if (it.size?.name) extras.push(it.size.name);
+        if (it.sugar_level) extras.push('Đường ' + it.sugar_level);
+        if (it.ice_level) extras.push('Đá ' + it.ice_level);
+        if (it.toppings?.length) extras.push(...it.toppings.map(t => t.name));
+
+        return `
+          <div class="p-2.5 bg-stone-50 rounded-xl border border-stone-200 flex justify-between items-start">
+            <div>
+              <p class="font-bold text-stone-800">${it.quantity}x ${it.product_name}</p>
+              <p class="text-[10px] text-stone-500">${extras.join(' • ')}</p>
+              ${it.notes ? `<p class="text-[10px] text-amber-700 italic">"${it.notes}"</p>` : ''}
+            </div>
+            <span class="font-mono font-bold text-stone-900">${formatVND(it.total_price)}</span>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('modalDetailBody').innerHTML = `
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 space-y-1">
+          <p><strong>Khách hàng:</strong> ${o.customer_name} (${o.customer_phone})</p>
+          <p><strong>Hình thức:</strong> ${o.order_type === 'takeaway' ? 'Tự lấy tại quán' : 'Giao tận nơi'}</p>
+          <p><strong>Địa chỉ:</strong> ${o.customer_address}</p>
+          ${o.customer_note ? `<p><strong>Ghi chú:</strong> ${o.customer_note}</p>` : ''}
+          <p><strong>Thanh toán:</strong> ${o.payment_method}</p>
+        </div>
+
+        <div class="space-y-1.5">
+          <p class="font-bold uppercase tracking-wider text-stone-600 text-[10px]">Danh sách món:</p>
+          ${itemsHtml}
+        </div>
+
+        <div class="border-t border-stone-200 pt-2 space-y-1 text-right">
+          <p class="text-stone-600">Tạm tính: <span class="font-mono">${formatVND(o.subtotal)}</span></p>
+          <p class="text-stone-600">Phí giao hàng: <span class="font-mono">${formatVND(o.shipping_fee)}</span></p>
+          <p class="text-base font-black text-hl-red">Tổng cộng: <span class="font-mono">${formatVND(o.total_amount)}</span></p>
+        </div>
+      `;
+
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+      lucide.createIcons();
+    }
+
+    function closeOrderDetailModal() {
+      const modal = document.getElementById('orderDetailModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    // ==========================================
+    // 3. MENU CRUD MANAGEMENT
+    // ==========================================
+    async function loadAdminProducts() {
+      try {
+        const res = await fetch('/api/admin/products');
+        const data = await res.json();
+        if (data.success) {
+          allProducts = data.products || [];
+          renderProductsTable();
+        }
+      } catch (err) {
+        console.error('Error loading products', err);
+      }
+    }
+
+    function renderProductsTable() {
+      const tbody = document.getElementById('productsTableBody');
+      const search = (document.getElementById('menuSearchInput')?.value || '').toLowerCase().trim();
+      const catFilter = parseInt(document.getElementById('menuCategoryFilter')?.value || '0');
+
+      let filtered = [...allProducts];
+
+      if (catFilter > 0) {
+        filtered = filtered.filter(p => p.category_id === catFilter);
+      }
+
+      if (search) {
+        filtered = filtered.filter(p => 
+          p.name.toLowerCase().includes(search) || 
+          (p.category_name && p.category_name.toLowerCase().includes(search))
+        );
+      }
+
+      tbody.innerHTML = filtered.map(p => `
+        <tr class="hover:bg-stone-50 transition-colors">
+          <td class="p-3.5">
+            <img src="${p.image}" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\\'http://www.w3.org/2000/svg\\' width=\\'40\\' height=\\'40\\'%3E%3Crect width=\\'40\\' height=\\'40\\' fill=\\'%23eee\\'/%3E%3C/svg%3E'" class="w-10 h-10 rounded-xl object-contain bg-stone-50 border border-stone-200 p-0.5">
+          </td>
+          <td class="p-3.5">
+            <p class="font-bold text-stone-900">${p.name}</p>
+            <p class="text-[10px] text-stone-400 line-clamp-1 max-w-[200px]">${p.description || ''}</p>
+          </td>
+          <td class="p-3.5">
+            <span class="bg-stone-100 text-stone-700 text-[10px] font-bold px-2 py-0.5 rounded-full border border-stone-200">
+              ${p.category_name || 'Khác'}
+            </span>
+          </td>
+          <td class="p-3.5 font-mono font-bold text-hl-red text-xs">
+            ${formatVND(p.price)}
+          </td>
+          <td class="p-3.5 text-center">
+            <button 
+              onclick="toggleProductStock(${p.id})"
+              class="px-2.5 py-1 rounded-full text-[10px] font-bold transition-all shadow-sm ${p.is_available ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200' : 'bg-red-100 text-red-800 border border-red-300 hover:bg-red-200'}"
+              title="Nhấn để đổi trạng thái kho"
+            >
+              ${p.is_available ? '✓ Còn hàng' : '✕ Hết hàng'}
+            </button>
+          </td>
+          <td class="p-3.5 text-center space-x-1.5 whitespace-nowrap">
+            <button onclick="openProductModal('edit', ${p.id})" class="p-1.5 bg-stone-100 hover:bg-amber-100 text-stone-600 hover:text-amber-800 rounded-lg transition-colors" title="Chỉnh sửa">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+            </button>
+            <button onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')" class="p-1.5 bg-stone-100 hover:bg-red-100 text-stone-600 hover:text-red-700 rounded-lg transition-colors" title="Xóa món">
+              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function handleMenuSearch(v) { renderProductsTable(); }
+    function handleMenuCategoryFilter(v) { renderProductsTable(); }
+
+    async function toggleProductStock(productId) {
+      try {
+        const res = await fetch(`/api/admin/products/${productId}/toggle-stock`, { method: 'PUT' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Đã cập nhật trạng thái: ${data.is_available ? 'Còn hàng' : 'Hết hàng'}`, 'success');
+          const p = allProducts.find(x => x.id === productId);
+          if (p) p.is_available = data.is_available;
+          renderProductsTable();
+        }
+      } catch (e) {
+        showToast('Lỗi cập nhật trạng thái kho', 'warning');
+      }
+    }
+
+    function openProductModal(mode, productId = null) {
+      const modal = document.getElementById('productModal');
+      const title = document.getElementById('productModalTitle');
+      const form = document.getElementById('productForm');
+
+      form.reset();
+      document.getElementById('prodEditId').value = '';
+
+      if (mode === 'edit' && productId) {
+        const p = allProducts.find(x => x.id === productId);
+        if (!p) return;
+        title.textContent = 'Chỉnh Sửa Món: ' + p.name;
+        document.getElementById('prodEditId').value = p.id;
+        document.getElementById('prodName').value = p.name;
+        document.getElementById('prodCategory').value = p.category_id;
+        document.getElementById('prodPrice').value = p.price;
+        document.getElementById('prodDesc').value = p.description || '';
+        document.getElementById('prodImageUrl').value = p.image || '';
+        document.getElementById('prodAvailable').checked = p.is_available === 1;
+      } else {
+        title.textContent = 'Thêm Món Mới';
+        document.getElementById('prodAvailable').checked = true;
+      }
+
+      modal.classList.remove('hidden');
+      setTimeout(() => modal.classList.remove('opacity-0'), 10);
+      lucide.createIcons();
+    }
+
+    function closeProductModal() {
+      const modal = document.getElementById('productModal');
+      modal.classList.add('opacity-0');
+      setTimeout(() => modal.classList.add('hidden'), 200);
+    }
+
+    async function handleProductSubmit(e) {
+      e.preventDefault();
+      const editId = document.getElementById('prodEditId').value;
+      const isEdit = editId !== '';
+
+      const formData = new FormData();
+      formData.append('name', document.getElementById('prodName').value.trim());
+      formData.append('category_id', document.getElementById('prodCategory').value);
+      formData.append('price', document.getElementById('prodPrice').value);
+      formData.append('description', document.getElementById('prodDesc').value.trim());
+      formData.append('image_url', document.getElementById('prodImageUrl').value.trim());
+      formData.append('is_available', document.getElementById('prodAvailable').checked ? '1' : '0');
+
+      const fileInput = document.getElementById('prodImageFile');
+      if (fileInput.files.length > 0) {
+        formData.append('image_file', fileInput.files[0]);
+      }
+
+      const url = isEdit ? `/api/admin/products/${editId}` : '/api/admin/products';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      try {
+        const res = await fetch(url, { method: method, body: formData });
+        const data = await res.json();
+        if (data.success) {
+          showToast(data.message || 'Lưu thành công!', 'success');
+          closeProductModal();
+          loadAdminProducts();
+        } else {
+          showToast(data.message || 'Lỗi khi lưu sản phẩm', 'warning');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối máy chủ', 'warning');
+      }
+    }
+
+    async function deleteProduct(productId, name) {
+      if (!confirm(`Bạn có chắc chắn muốn xóa món "${name}" khỏi thực đơn?`)) return;
+
+      try {
+        const res = await fetch(`/api/admin/products/${productId}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          showToast(`Đã xóa "${name}"`, 'info');
+          loadAdminProducts();
+        } else {
+          showToast(data.message || 'Xóa thất bại', 'warning');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối khi xóa món', 'warning');
+      }
+    }
+
+    // ==========================================
+    // 4. IMPORT MENU FROM CSV
+    // ==========================================
+    async function handleImportMenu(e) {
+      e.preventDefault();
+      const fileInput = document.getElementById('csvFileInput');
+      const resultBox = document.getElementById('importResult');
+      const submitBtn = document.getElementById('btnImportSubmit');
+
+      if (!fileInput.files || fileInput.files.length === 0) return;
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Đang đồng bộ hóa...';
+
+      try {
+        const res = await fetch('/api/admin/import/menu', {
+          method: 'POST',
+          body: formData
+        });
+        const data = await res.json();
+
+        resultBox.classList.remove('hidden');
+        if (data.success) {
+          resultBox.className = 'text-xs p-3 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-800 block';
+          resultBox.textContent = `✓ Thành công! Đã cập nhật ${data.updated_count} món và thêm mới ${data.inserted_count} món từ CSV.`;
+          showToast('Đồng bộ Menu thành công!', 'success');
+          fileInput.value = '';
+        } else {
+          resultBox.className = 'text-xs p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 block';
+          resultBox.textContent = `✕ Thất bại: ${data.message || 'Không thể đọc file CSV'}`;
+        }
+      } catch (err) {
+        resultBox.className = 'text-xs p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 block';
+        resultBox.textContent = '✕ Lỗi kết nối khi tải file CSV.';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i data-lucide="check" class="w-4 h-4 text-hl-gold"></i><span>Tải Lên & Đồng Bộ Menu Ngay</span>';
+        lucide.createIcons();
+      }
+    }
+
+    // ==========================================
+    // TOAST NOTIFICATIONS
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      let bg = 'bg-stone-900 text-white';
+      if (type === 'success') bg = 'bg-emerald-900 text-white border border-emerald-600';
+      if (type === 'warning') bg = 'bg-amber-900 text-white border border-amber-600';
+
+      toast.className = `px-4 py-2.5 rounded-2xl shadow-xl text-xs font-semibold flex items-center gap-2 transition-all duration-300 pointer-events-auto ${bg}`;
+      toast.textContent = message;
+
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3500);
+    }
+
+    // Initialize on load
+    document.addEventListener('DOMContentLoaded', () => {
+      lucide.createIcons();
+      loadDashboardStats();
+    });
+  </script>
+</body>
+</html>

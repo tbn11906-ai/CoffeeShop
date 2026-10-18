@@ -1,6 +1,6 @@
 """
 Database management for Highlands Coffee Web App
-SQLite connection and schema migrations
+SQLite connection, schema migrations, and Admin helpers
 """
 
 import os
@@ -36,6 +36,7 @@ def init_db():
         full_name TEXT NOT NULL,
         phone TEXT NOT NULL,
         address TEXT DEFAULT '',
+        is_admin INTEGER DEFAULT 0,
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
@@ -53,14 +54,27 @@ def init_db():
     # 3. Products Table
     cursor.execute("""
     CREATE TABLE IF NOT EXISTS products (
-        id INTEGER PRIMARY KEY,
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL,
         price INTEGER NOT NULL,
         image TEXT NOT NULL,
         description TEXT DEFAULT '',
-        category_id INTEGER REFERENCES categories(id)
+        category_id INTEGER REFERENCES categories(id),
+        is_available INTEGER DEFAULT 1
     );
     """)
+
+    # Ensure is_available column exists if table was already created
+    try:
+        cursor.execute("ALTER TABLE products ADD COLUMN is_available INTEGER DEFAULT 1")
+    except sqlite3.OperationalError:
+        pass
+
+    # Ensure is_admin column exists in users
+    try:
+        cursor.execute("ALTER TABLE users ADD COLUMN is_admin INTEGER DEFAULT 0")
+    except sqlite3.OperationalError:
+        pass
 
     # 4. Orders Table
     cursor.execute("""
@@ -78,7 +92,7 @@ def init_db():
         discount INTEGER DEFAULT 0,
         shipping_fee INTEGER DEFAULT 0,
         total_amount INTEGER NOT NULL,
-        status TEXT DEFAULT 'Đang chuẩn bị',
+        status TEXT DEFAULT 'Chờ xác nhận',
         created_at DATETIME DEFAULT CURRENT_TIMESTAMP
     );
     """)
@@ -110,11 +124,24 @@ def init_db():
     if not cursor.fetchone():
         demo_pwd = generate_password_hash("123456")
         cursor.execute("""
-        INSERT INTO users (username, password_hash, full_name, phone, address)
-        VALUES (?, ?, ?, ?, ?)
-        """, ('demo', demo_pwd, 'Nguyễn Văn A', '0912345678', 'Số 123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh'))
+        INSERT INTO users (username, password_hash, full_name, phone, address, is_admin)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, ('demo', demo_pwd, 'Nguyễn Văn A', '0912345678', 'Số 123 Đường Lê Lợi, Quận 1, TP. Hồ Chí Minh', 0))
         conn.commit()
-        print("Demo user created: demo / 123456")
+
+    # Seed admin user if not exists, ensure is_admin=1
+    cursor.execute("SELECT id, is_admin FROM users WHERE username = 'admin'")
+    admin_row = cursor.fetchone()
+    if not admin_row:
+        admin_pwd = generate_password_hash("highlands123")
+        cursor.execute("""
+        INSERT INTO users (username, password_hash, full_name, phone, address, is_admin)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """, ('admin', admin_pwd, 'Quản Trị Viên Highlands', '19001755', 'Trụ sở Highlands Coffee Việt Nam', 1))
+        conn.commit()
+    elif not admin_row['is_admin']:
+        cursor.execute("UPDATE users SET is_admin = 1 WHERE username = 'admin'")
+        conn.commit()
 
     # Seed categories and products from CSV if categories table empty
     cursor.execute("SELECT COUNT(*) as cnt FROM categories")
@@ -122,7 +149,6 @@ def init_db():
         seed_csv_data(conn)
 
     conn.close()
-    print("Database initialized successfully at:", DB_PATH)
 
 def seed_csv_data(conn):
     base_dir = os.path.dirname(__file__)
@@ -150,8 +176,8 @@ def seed_csv_data(conn):
                 if row and row[0]:
                     clean_desc = row[4] if len(row) > 4 else ''
                     cursor.execute("""
-                    INSERT OR REPLACE INTO products (id, name, price, image, description, category_id)
-                    VALUES (?, ?, ?, ?, ?, ?)
+                    INSERT OR REPLACE INTO products (id, name, price, image, description, category_id, is_available)
+                    VALUES (?, ?, ?, ?, ?, ?, 1)
                     """, (
                         int(row[0]),
                         row[1],
@@ -162,7 +188,72 @@ def seed_csv_data(conn):
                     ))
 
     conn.commit()
-    print("Seeded categories and products into SQLite.")
+
+def get_admin_stats(conn):
+    cursor = conn.cursor()
+    
+    # 1. Total revenue (sum of non-cancelled orders)
+    cursor.execute("""
+        SELECT COALESCE(SUM(total_amount), 0) as total_rev 
+        FROM orders 
+        WHERE status != 'Đã hủy'
+    """)
+    total_rev = cursor.fetchone()['total_rev']
+
+    # 2. Total orders count
+    cursor.execute("SELECT COUNT(*) as total_ord FROM orders")
+    total_ord = cursor.fetchone()['total_ord']
+
+    # 3. Pending orders
+    cursor.execute("""
+        SELECT COUNT(*) as pending_ord 
+        FROM orders 
+        WHERE status IN ('Chờ xác nhận', 'Đang chuẩn bị', 'Đang pha chế')
+    """)
+    pending_ord = cursor.fetchone()['pending_ord']
+
+    # 4. Total products in menu
+    cursor.execute("SELECT COUNT(*) as total_prod FROM products")
+    total_prod = cursor.fetchone()['total_prod']
+
+    # 5. Top selling items
+    cursor.execute("""
+        SELECT product_name, product_image, SUM(quantity) as total_qty, SUM(total_price) as total_sales
+        FROM order_items
+        JOIN orders ON order_items.order_id = orders.id
+        WHERE orders.status != 'Đã hủy'
+        GROUP BY product_name
+        ORDER BY total_qty DESC
+        LIMIT 5
+    """)
+    top_selling = [dict(r) for r in cursor.fetchall()]
+
+    # If no sales yet, fallback to top products from products table
+    if not top_selling:
+        cursor.execute("""
+            SELECT name as product_name, image as product_image, 0 as total_qty, 0 as total_sales
+            FROM products
+            LIMIT 5
+        """)
+        top_selling = [dict(r) for r in cursor.fetchall()]
+
+    # 6. Orders breakdown by status
+    cursor.execute("""
+        SELECT status, COUNT(*) as cnt
+        FROM orders
+        GROUP BY status
+    """)
+    status_breakdown = {r['status']: r['cnt'] for r in cursor.fetchall()}
+
+    return {
+        'total_revenue': total_rev,
+        'total_orders': total_ord,
+        'pending_orders': pending_ord,
+        'total_products': total_prod,
+        'top_selling': top_selling,
+        'status_breakdown': status_breakdown
+    }
 
 if __name__ == '__main__':
     init_db()
+    print("Database check completed.")

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đăng Nhập Quản Trị - Highlands Coffee</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            hl: {
+              red: '#B22830',
+              'red-dark': '#8B1D23',
+              brown: '#53382C',
+              'brown-dark': '#38251D',
+              cream: '#FAF6F0',
+              gold: '#D4AF37',
+              'gold-dark': '#B8860B'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Montserrat', 'sans-serif'],
+            display: ['Montserrat', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-[#FAF6F0] min-h-screen flex items-center justify-center p-4 antialiased text-stone-800 font-sans">
+
+  <div class="max-w-md w-full bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden">
+    
+    <!-- Header banner -->
+    <div class="bg-gradient-to-r from-hl-red-dark via-hl-red to-hl-brown p-8 text-center text-white relative">
+      <a href="/" class="absolute top-4 left-4 text-xs bg-white/10 hover:bg-white/20 text-white px-3 py-1.5 rounded-full flex items-center gap-1 transition-all">
+        <i data-lucide="arrow-left" class="w-3.5 h-3.5"></i> Trang bán hàng
+      </a>
+      
+      <div class="w-16 h-16 rounded-full bg-white/10 mx-auto flex items-center justify-center mb-3 border-2 border-hl-gold shadow-lg">
+        <svg class="w-9 h-9 text-hl-gold" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M30 42h40v18c0 11-9 20-20 20s-20-9-20-20v-18z" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M70 48h8a8 8 0 0 1 0 16h-8v-16z" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M40 32c0-4 4-7 4-11m12 11c0-4 4-7 4-11m12 11c0-4 4-7 4-11" stroke="#D4AF37" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <h1 class="text-xl font-black font-display tracking-tight uppercase">HỆ THỐNG QUẢN TRỊ</h1>
+      <p class="text-xs text-amber-200/90 mt-1 font-medium">HIGHLANDS COFFEE ADMIN PORTAL</p>
+    </div>
+
+    <!-- Login Form -->
+    <div class="p-6 sm:p-8 space-y-5">
+      {% if error %}
+      <div class="p-3.5 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-xs font-semibold flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4 shrink-0 text-red-600"></i>
+        <span>{{ error }}</span>
+      </div>
+      {% endif %}
+
+      <form action="/admin/login" method="POST" class="space-y-4">
+        <div class="space-y-1.5">
+          <label for="username" class="text-xs font-bold text-stone-700 uppercase tracking-wider">Tài khoản quản trị</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-stone-400">
+              <i data-lucide="user" class="w-4 h-4"></i>
+            </span>
+            <input 
+              type="text" 
+              name="username" 
+              id="username" 
+              required 
+              placeholder="Nhập tên đăng nhập Admin" 
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none text-sm transition-all"
+            >
+          </div>
+        </div>
+
+        <div class="space-y-1.5">
+          <label for="password" class="text-xs font-bold text-stone-700 uppercase tracking-wider">Mật khẩu</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center text-stone-400">
+              <i data-lucide="lock" class="w-4 h-4"></i>
+            </span>
+            <input 
+              type="password" 
+              name="password" 
+              id="password" 
+              required 
+              placeholder="Nhập mật khẩu Admin" 
+              class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-stone-200 focus:border-hl-red focus:ring-2 focus:ring-hl-red/20 outline-none text-sm transition-all"
+            >
+          </div>
+        </div>
+
+        <!-- Quick fill demo credentials -->
+        <div class="p-3 bg-amber-50 rounded-2xl border border-amber-200/80 flex items-center justify-between text-xs">
+          <div class="text-[11px] text-amber-900 leading-tight">
+            <span class="font-bold">Mặc định:</span> <span class="font-mono">admin</span> / <span class="font-mono">highlands123</span>
+          </div>
+          <button 
+            type="button" 
+            onclick="fillCredentials()" 
+            class="text-[11px] text-hl-red hover:text-hl-red-dark font-bold hover:underline"
+          >
+            Điền nhanh
+          </button>
+        </div>
+
+        <button 
+          type="submit" 
+          class="w-full bg-hl-red hover:bg-hl-red-dark text-white font-bold py-3 px-4 rounded-xl shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 text-sm active:scale-98"
+        >
+          <i data-lucide="shield-check" class="w-4 h-4 text-hl-gold"></i>
+          <span>Đăng Nhập Quản Trị</span>
+        </button>
+      </form>
+
+      <div class="pt-3 border-t border-stone-100 text-center">
+        <a href="/" class="text-xs text-stone-500 hover:text-hl-red font-medium transition-colors inline-flex items-center gap-1">
+          <i data-lucide="store" class="w-3.5 h-3.5"></i> Quay về trang bán hàng
+        </a>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    lucide.createIcons();
+    function fillCredentials() {
+      document.getElementById('username').value = 'admin';
+      document.getElementById('password').value = 'highlands123';
+    }
+  </script>
+</body>
+</html>
